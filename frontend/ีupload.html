@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Callcenter AI - Upload</title>
+</head>
+<body>
+    <h1>🎧 Upload Audio for Sentiment Analysis</h1>
+
+    <form id="uploadForm">
+        <input type="file" id="fileInput" required>
+        <button type="submit">Analyze</button>
+    </form>
+
+    <h3>Result:</h3>
+    <pre id="result"></pre>
+
+    <br>
+    <a href="/dashboard">Go to Dashboard</a>
+
+    <script>
+        document.getElementById("uploadForm").onsubmit = async function(e) {
+            e.preventDefault();
+            const file = document.getElementById("fileInput").files[0];
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await fetch("/analyze/", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+            document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+        };
+    </script>
+</body>
+</html>

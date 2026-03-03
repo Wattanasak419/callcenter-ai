@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Callcenter AI - Dashboard</title>
+</head>
+<body>
+    <h1>📊 Sentiment Dashboard</h1>
+
+    <button onclick="loadData()">Refresh</button>
+
+    <pre id="data"></pre>
+
+    <br>
+    <a href="/">Back to Upload</a>
+
+    <script>
+        async function loadData() {
+            const response = await fetch("/analyze/"); // ชั่วคราว
+            document.getElementById("data").textContent = 
+                "Dashboard coming soon 🔥";
+        }
+    </script>
+</body>
+</html>

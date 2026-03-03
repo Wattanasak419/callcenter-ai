@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Call Center AI</title>
+</head>
+
+<body>
+
+    <h2>Upload Audio File</h2>
+
+    <!-- Upload Form -->
+    <form id="uploadForm">
+        <input type="file" id="audioFile" accept="audio/*" required>
+        <button type="submit">Analyze</button>
+    </form>
+
+    <!-- Result Section -->
+    <h3>Transcript:</h3>
+    <p id="transcript"></p>
+
+    <h3>Sentiment:</h3>
+    <p id="sentiment"></p>
+
+    <script>
+        const form = document.getElementById("uploadForm");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const fileInput = document.getElementById("audioFile");
+
+            if (!fileInput.files.length) {
+                alert("Please select an audio file");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch("/analyze/", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                // Show transcript
+                document.getElementById("transcript").innerText = data.transcript;
+
+                // Handle sentiment (รองรับทั้ง object และ list)
+                let sentimentData = Array.isArray(data.sentiment)
+                    ? data.sentiment[0]
+                    : data.sentiment;
+
+                document.getElementById("sentiment").innerText =
+                    sentimentData.label +
+                    " (score: " +
+                    sentimentData.score.toFixed(2) +
+                    ")";
+
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Something went wrong!");
+            }
+        });
+    </script>
+
+</body>
+</html>
