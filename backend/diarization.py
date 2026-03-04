@@ -1,23 +1,33 @@
-import os
-from pyannote.audio import Pipeline
+from speechbrain.inference.classifiers import EncoderClassifier
+import torchaudio
 
-# โหลดโมเดล
-pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization-3.1")
 
-# ให้ผู้ใช้พิมพ์ชื่อไฟล์
-file_name = input("Enter file name (example: audio.wav): ")
 
-audio_file = os.path.join("backend", "uploads", file_name)
 
-# เช็คว่าไฟล์มีอยู่จริงไหม
-if not os.path.exists(audio_file):
-    print("File not found!")
-    exit()
 
-print("Using file:", audio_file)
+# โหลดโมเดล Speaker Embedding
+classifier = EncoderClassifier.from_hparams(
+    source="speechbrain/spkrec-ecapa-voxceleb",
+    savedir="pretrained_models/spkrec",
+    local_strategy="copy"  # ป้องกันปัญหา symlink บน Windows
+)
 
-# ประมวลผล
-diarization = pipeline(audio_file)
 
-for turn, _, speaker in diarization.itertracks(yield_label=True):
-    print(f"{turn.start:.1f}s - {turn.end:.1f}s : {speaker}")
+def run_diarization(audio_path: str) -> dict:
+    """
+    รับ path ของไฟล์เสียง
+    คืนค่า embedding ของ speaker
+    """
+
+    # โหลดไฟล์เสียง
+    signal, sample_rate = torchaudio.load(audio_path)
+
+    # สร้าง embedding
+    embedding = classifier.encode_batch(signal)
+
+    # ส่งผลลัพธ์กลับ
+    return {
+        "status": "success",
+        "sample_rate": sample_rate,
+        "embedding_shape": list(embedding.shape),
+    }
