@@ -43,12 +43,12 @@ pip install -r requirements.txt
 ## ▶️ Run the Server
 
 ```bash
-uvicorn backend.main:app --reload
+uvicorn backend.main:app --host 127.0.0.1 --port 9000 --reload
 ```
 
 Open browser:
 ```
-http://127.0.0.1:8000/docs
+http://127.0.0.1:9000/docs
 ```
 
 ---
