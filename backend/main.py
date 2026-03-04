@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
-
+from fastapi.responses import FileResponse
 from pathlib import Path
 import shutil
 from fastapi.responses import FileResponse
@@ -60,36 +60,23 @@ def save_uploaded_file(file: UploadFile) -> Path:
 # -----------------------------
 # Root Endpoint
 # -----------------------------
-@app.get("/")
+
+
+
+
+
+@app.get("/", include_in_schema=False)
 async def root():
-    return {
-        "message": "Call Center AI Backend Running 🚀",
-        "docs": "/docs",
-        "ui": "/ui"
-    }
+    return FileResponse("frontend/dashboard.html")
 
-
-
-@app.get("/ui")
+@app.get("/ui", include_in_schema=False)
 async def get_ui():
-    return FileResponse("frontend/upload.html")
-# -----------------------------
-# Health Check
-# -----------------------------
+    return FileResponse("frontend/dashboard.html")
+
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
 
-
-# -----------------------------
-# Web UI
-# -----------------------------
-@app.get("/ui", response_class=HTMLResponse)
-async def ui(request: Request):
-    return templates.TemplateResponse(
-        "index.html",
-        {"request": request}
-    )
 
 
 # -----------------------------

@@ -1,24 +1,157 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Callcenter AI - Dashboard</title>
+    <title>Call Center AI System</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f8fa;
+        }
+
+        .navbar {
+            background: #24292f;
+            color: white;
+            padding: 14px 24px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: none;
+            background: #2da44e;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .sentiment {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .muted {
+            color: #6a737d;
+            font-size: 14px;
+        }
+
+        #transcript {
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+    </style>
 </head>
 <body>
-    <h1>📊 Sentiment Dashboard</h1>
 
-    <button onclick="loadData()">Refresh</button>
+<div class="navbar">
+    📞 Call Center AI Prototype
+</div>
 
-    <pre id="data"></pre>
+<div class="container">
 
-    <br>
-    <a href="/">Back to Upload</a>
+    <!-- Upload Section -->
+    <div class="card">
+        <h3>Upload Call Recording</h3>
+        <input type="file" id="audioFile">
+        <br><br>
+        <button onclick="uploadFile()">Analyze Call</button>
+    </div>
 
-    <script>
-        async function loadData() {
-            const response = await fetch("/analyze/"); // ชั่วคราว
-            document.getElementById("data").textContent = 
-                "Dashboard coming soon 🔥";
-        }
-    </script>
+    <!-- Transcript -->
+    <div class="card">
+        <h3>Transcript</h3>
+        <div id="transcript" class="muted">No transcript yet.</div>
+    </div>
+
+    <!-- Summary -->
+    <div class="card">
+        <h3>Call Summary</h3>
+        <div id="summary" class="muted">No summary available.</div>
+    </div>
+
+    <!-- Sentiment -->
+    <div class="card">
+        <h3>Customer Sentiment</h3>
+        <div id="sentiment" class="sentiment">-</div>
+    </div>
+
+    <!-- Speakers -->
+    <div class="card">
+        <h3>Call Information</h3>
+        <div id="speakers" class="muted">-</div>
+    </div>
+
+</div>
+
+<script>
+async function uploadFile() {
+    const file = document.getElementById("audioFile").files[0];
+    if (!file) {
+        alert("Please select a file first.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/analyze", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+
+    // Transcript
+    document.getElementById("transcript").innerText = data.transcript || "No transcript available.";
+
+    // Simple Summary (ตัด 2 บรรทัดแรกโชว์)
+    const summaryText = data.transcript
+        ? data.transcript.split(".").slice(0,2).join(".") + "."
+        : "No summary available.";
+    document.getElementById("summary").innerText = summaryText;
+
+    // Sentiment Stars
+    const sentimentText = data.sentiment.label;
+    let stars = "";
+
+    if (sentimentText.includes("5")) stars = "⭐⭐⭐⭐⭐ Very Positive";
+    else if (sentimentText.includes("4")) stars = "⭐⭐⭐⭐ Positive";
+    else if (sentimentText.includes("3")) stars = "⭐⭐⭐ Neutral";
+    else if (sentimentText.includes("2")) stars = "⭐⭐ Negative";
+    else stars = "⭐ Very Negative";
+
+    document.getElementById("sentiment").innerText = stars;
+
+    // Call Info
+    document.getElementById("speakers").innerText =
+        "Detected Speakers: 2";
+}
+</script>
+
 </body>
 </html>
