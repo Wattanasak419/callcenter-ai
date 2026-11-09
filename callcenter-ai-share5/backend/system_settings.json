@@ -1,6 +1,0 @@
-{
-  "ai_processing": true,
-  "speech_model": "Faster Whisper Large v3",
-  "session_timeout": 10,
-  "employee_position": "หัวหน้างาน"
-}
