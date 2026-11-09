@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ศูนย์รับเคสด่วน & VVIP — OMAZZ CALLING</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #070d18;
+      --card-bg: rgba(16, 27, 46, 0.75);
+      --card-border: rgba(45, 74, 119, 0.35);
+      --accent-red: #ff4757;
+      --accent-gold: #ffa502;
+      --accent-blue: #3867d6;
+      --accent-green: #2ed573;
+      --text-main: #f1f2f6;
+      --text-sub: #a4b0be;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+    /* ================= Sidebar Navigation ================= */
+    .sidebar {
+      width: 270px;
+      min-width: 270px;
+      background: #080f1e;
+      border-right: 1px solid rgba(45, 74, 119, 0.25);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      user-select: none;
+    }
+
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-left: 4px;
+    }
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: #8fa5ff;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 1.4rem;
+      box-shadow: 0 4px 14px rgba(143, 165, 255, 0.3);
+    }
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: #8c9ba5;
+      margin-top: 2px;
+    }
+
+    .user-card {
+      background: rgba(19, 31, 53, 0.85);
+      border: 1px solid rgba(56, 88, 140, 0.4);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    }
+    .user-name {
+      font-size: 1.05rem;
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 2px;
+    }
+    .user-role {
+      font-size: 0.82rem;
+      color: #8c9ba5;
+      margin-bottom: 8px;
+    }
+    .user-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.82rem;
+      color: #9cb4ff;
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: #8fa5ff;
+      border-radius: 50%;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      color: #cbd5e1;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    .nav-btn i {
+      font-size: 1.15rem;
+      width: 22px;
+      text-align: center;
+    }
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+    }
+    .nav-btn.active {
+      background: #182742;
+      color: #ffa502;
+      font-weight: 700;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08);
+    }
+    .nav-btn.active i {
+      color: #ffa502;
+    }
+
+    /* ================= Main Container ================= */
+    .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .title-box h1 { font-size: 1.8rem; display: flex; align-items: center; gap: 12px; color: #fff; }
+    .badge-live { background: rgba(255, 71, 87, 0.2); border: 1px solid var(--accent-red); color: var(--accent-red); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; }
+    .live-dot { width: 8px; height: 8px; background: var(--accent-red); border-radius: 50%; animation: pulse 1.5s infinite; }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.6; }
+    }
+
+    /* KPI Summary Cards */
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 25px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px; backdrop-filter: blur(10px); }
+    .kpi-val { font-size: 1.8rem; font-weight: bold; margin-top: 8px; color: #fff; }
+
+    /* ================= Performance Section (Manager Only) ================= */
+    .performance-card {
+      background: #091322;
+      border: 1px solid rgba(45, 74, 119, 0.45);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+    .perf-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .perf-title-box h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .perf-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+    .perf-filter-group {
+      display: flex;
+      gap: 8px;
+      background: rgba(14, 25, 44, 0.8);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+    }
+    .filter-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      padding: 6px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover {
+      color: #fff;
+    }
+    .filter-btn.active {
+      background: #8fa5ff;
+      color: #070d18;
+    }
+
+    /* ตารางผลงานรายบุคคล */
+    .perf-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+    .perf-table th {
+      padding: 12px 14px;
+      color: #7b8fa7;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(45, 74, 119, 0.3);
+    }
+    .perf-table td {
+      padding: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .perf-table tbody tr {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .perf-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .sat-tag {
+      background: rgba(255, 165, 2, 0.15);
+      color: var(--accent-gold);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+    }
+
+    /* Case Table */
+    .table-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; backdrop-filter: blur(10px); }
+    .table-header-tools { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--card-border); background: rgba(18, 30, 52, 0.5); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; }
+    th { background: rgba(18, 30, 52, 0.8); padding: 14px 16px; color: var(--text-sub); border-bottom: 1px solid var(--card-border); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; }
+    td { padding: 14px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+    tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+    /* Badges & Actions */
+    .priority-badge { padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+    .p-vvip { background: rgba(255, 165, 2, 0.2); color: var(--accent-gold); border: 1px solid var(--accent-gold); }
+    .p-urgent { background: rgba(255, 71, 87, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+
+    .claim-btn { background: var(--accent-blue); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
+    .claim-btn:hover { background: #2352c7; transform: translateY(-1px); }
+    .claimed-tag { color: var(--accent-green); background: rgba(46, 213, 115, 0.15); border: 1px solid var(--accent-green); padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: 0.15s; }
+    .claimed-tag:hover { background: rgba(46, 213, 115, 0.28); }
+
+    .btn-export { background: rgba(46, 213, 115, 0.15); color: var(--accent-green); border: 1px solid rgba(46, 213, 115, 0.4); padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; transition: 0.15s; }
+    .btn-export:hover { background: rgba(46, 213, 115, 0.25); }
+
+    /* Modals */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(3, 10, 20, 0.85); backdrop-filter: blur(8px); z-index: 999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.2s; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-box { background: #0c1a2e; border: 1px solid var(--card-border); border-radius: 14px; width: 440px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+    .modal-box h3 { margin-bottom: 12px; font-size: 1.2rem; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .modal-select { width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: #fff; border-radius: 8px; font-size: 0.95rem; margin: 15px 0 20px; outline: none; }
+    .modal-select option { background: #0c1a2e; color: #fff; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+    .btn-cancel { background: transparent; border: 1px solid var(--card-border); color: var(--text-sub); padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+    .btn-confirm { background: var(--accent-green); border: none; color: #07111f; font-weight: bold; padding: 8px 18px; border-radius: 6px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="brand-header">
+      <div class="brand-icon">
+        <i class="fas fa-cloud"></i>
+      </div>
+      <div>
+        <div class="brand-title">OMAZZ CALLING</div>
+        <div class="brand-subtitle">แดชบอร์ดอัจฉริยะ 3D</div>
+      </div>
+    </div>
+
+    <!-- User Profile Card -->
+    <div class="user-card">
+      <div class="user-name" id="sidebar-user-name">วิชัย</div>
+      <div class="user-role" id="sidebar-user-role">Software Developer</div>
+      <div class="user-status">
+        <span class="status-dot"></span>
+        <span id="sidebar-user-status">หัวหน้า</span>
+      </div>
+    </div>
+
+    <a href="/dashboard" class="nav-btn">
+      <i class="fas fa-th-large"></i> แดชบอร์ด
+    </a>
+    <a href="/urgent-cases" class="nav-btn active">
+      <i class="fas fa-fire"></i> 🚨 เคสด่วน & VVIP
+    </a>
+    <a href="/customers" class="nav-btn">
+      <i class="fas fa-user-friends"></i> ข้อมูลลูกค้า
+    </a>
+    <a href="/add-customer" class="nav-btn">
+      <i class="fas fa-user-plus"></i> ลงทะเบียน
+    </a>
+    <a href="/upload" class="nav-btn">
+      <i class="fas fa-arrow-up-from-bracket"></i> อัปโหลดเสียง
+    </a>
+    <a href="/agents" class="nav-btn">
+      <i class="fas fa-id-card"></i> พนักงาน
+    </a>
+  </div>
+
+  <!-- Content -->
+  <div class="main-content">
+    <div class="header-bar">
+      <div class="title-box">
+        <h1>🚨 ศูนย์ควบคุมเคสด่วน & ลูกค้า VVIP</h1>
+        <p style="color: var(--text-sub); margin-top: 4px;">หน้าต่างคัดกรองเคสวิกฤตและสายที่ต้องการการประกบดูแลโดยตรงแบบ Real-time</p>
+      </div>
+      <div class="badge-live"><div class="live-dot"></div> ระบบมอนิเตอร์สด (Auto 10s)</div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div style="color: var(--accent-red);"><i class="fas fa-exclamation-triangle"></i> เคสต้องเข้าดูแลด่วน</div>
+        <div class="kpi-val" id="urgent-count">0</div>
+      </div>
+      <div class="kpi-card">
+        <div style="color: var(--accent-gold);"><i class="fas fa-crown"></i> ลูกค้า VVIP</div>
+        <div class="kpi-val" id="vvip-count">0</div>
+      </div>
+      <div class="kpi-card">
+        <div style="color: var(--accent-green);"><i class="fas fa-user-check"></i> กำลังมีแอดมินประกบ</div>
+        <div class="kpi-val" id="claimed-count">0</div>
+      </div>
+      <div class="kpi-card">
+        <div style="color: #8ab4f8;"><i class="fas fa-trophy"></i> ท็อปสกอร์พนักงาน</div>
+        <div class="kpi-val" id="top-agent-display" style="font-size: 1.2rem; font-weight: bold; margin-top: 10px; color: var(--accent-gold);">—</div>
+      </div>
+    </div>
+
+    <!-- 📊 ตารางสรุปผลงานและการปิดเคสรายบุคคล (เฉพาะ Manager / หัวหน้างาน) -->
+    <div class="performance-card" id="managerPerformanceSection" style="display: none;">
+      <div class="perf-header">
+        <div class="perf-title-box">
+          <h2>🏆 ผลงานและการปิดเคสรายบุคคล <span style="font-size: 0.8rem; color: #8fa5ff; font-weight: normal; margin-left: 6px;">ประจำช่วงเวลาที่เลือก</span></h2>
+          <div class="perf-subtitle">สรุปจำนวนเคสที่รับผิดชอบ ยอดปิดเคสสำเร็จ และคะแนนความพึงพอใจแยกตามรายชื่อพนักงาน (คลิกที่แถวเพื่อดูรายละเอียดเคส)</div>
+        </div>
+
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <!-- Filter Tabs -->
+          <div class="perf-filter-group">
+            <button class="filter-btn active" id="filter-vvip" onclick="setPerformanceFilter('vvip')">
+              👑 ลูกค้า VVIP (Omazz)
+            </button>
+            <button class="filter-btn" id="filter-general" onclick="setPerformanceFilter('general')">
+              👥 ลูกค้าทั่วไป
+            </button>
+            <button class="filter-btn" id="filter-all" onclick="setPerformanceFilter('all')">
+              🌐 ทั้งหมด
+            </button>
+          </div>
+
+          <!-- ปุ่มส่งออก CSV เฉพาะหัวหน้า -->
+          <button class="btn-export" onclick="exportAgentPerformanceCsv()">
+            <i class="fas fa-file-excel"></i> ส่งออกผลงาน (CSV)
+          </button>
+        </div>
+      </div>
+
+      <table class="perf-table">
+        <thead>
+          <tr>
+            <th style="width: 70px;">อันดับ</th>
+            <th>พนักงาน</th>
+            <th>รหัสพนักงาน</th>
+            <th style="text-align: center;">รับมอบหมาย</th>
+            <th style="text-align: center; color: var(--accent-green);">ปิดเคสสำเร็จ</th>
+            <th style="text-align: center;">คะแนนบริการเฉลี่ย</th>
+            <th style="text-align: center;">ความพึงพอใจลูกค้า</th>
+          </tr>
+        </thead>
+        <tbody id="performance-table-body">
+          <tr><td colspan="7" style="text-align: center; color: var(--text-sub); padding: 25px;">กำลังโหลดสถิติการปิดเคส...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table: เคสที่ต้องติดตาม -->
+    <div class="table-card">
+      <div class="table-header-tools">
+        <div style="font-size: 1rem; font-weight: 700; color: #fff;">
+          <i class="fas fa-list-alt"></i> รายการเคสที่ต้องติดตาม
+        </div>
+        <div style="display: flex; gap: 10px;" id="caseExportTools">
+          <!-- เฉพาะ Manager/หัวหน้างานจะเห็นปุ่มส่งออกนี้ -->
+          <button class="btn-export" style="background: rgba(138,180,248,0.15); color: #8ab4f8; border-color: rgba(138,180,248,0.3);" onclick="exportCasesCsv()">
+            <i class="fas fa-download"></i> ส่งออกเคสทั้งหมด (CSV)
+          </button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>เคส ID</th>
+            <th>ระดับ</th>
+            <th>ลูกค้า / แบรนด์</th>
+            <th>เบอร์โทร</th>
+            <th>ปัญหาหลัก</th>
+            <th>ความพึงพอใจ</th>
+            <th>ผู้ดูแลโดยตรง</th>
+            <th>ระยะเวลา</th>
+            <th>การจัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="case-table-body">
+          <tr><td colspan="9" style="text-align: center; color: var(--text-sub); padding: 30px;">กำลังโหลดข้อมูลเคสวิกฤต...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal 1: มอบหมายงาน -->
+  <div class="modal-overlay" id="assignModal">
+    <div class="modal-box">
+      <h3><i class="fas fa-user-tag" style="color: var(--accent-blue);"></i> เลือกพนักงานผู้รับผิดชอบ</h3>
+      <p style="color: var(--text-sub); font-size: 0.9rem;" id="modalCaseDesc">เคส #...</p>
+      
+      <select id="agentSelectDropdown" class="modal-select">
+        <option value="">-- กำลังโหลดรายชื่อพนักงาน... --</option>
+      </select>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeAssignModal()">ยกเลิก</button>
+        <button class="btn-confirm" onclick="confirmAssignCase()"><i class="fas fa-check"></i> มอบหมายงาน</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: รายละเอียดเคสพนักงาน -->
+  <div class="modal-overlay" id="agentHistoryModal">
+    <div class="modal-box" style="width: 820px; max-width: 90vw;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+        <h3 style="margin: 0; color: #fff;">
+          <i class="fas fa-user-check" style="color: var(--accent-green);"></i> ประวัติเคสที่ดูแล: <span id="historyAgentName" style="color: var(--accent-gold); margin-left: 6px;">-</span>
+        </h3>
+        <button onclick="closeAgentHistoryModal()" style="background: transparent; border: none; color: var(--text-sub); font-size: 1.5rem; cursor: pointer;">&times;</button>
+      </div>
+
+      <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+        <div style="background: rgba(255,255,255,0.05); padding: 10px 16px; border-radius: 8px; flex: 1;">
+          <div style="font-size: 0.8rem; color: var(--text-sub);">เคสที่รับผิดชอบทั้งหมด</div>
+          <div style="font-size: 1.3rem; font-weight: bold; color: #fff;" id="historyTotalAssigned">0</div>
+        </div>
+        <div style="background: rgba(46, 213, 115, 0.15); padding: 10px 16px; border-radius: 8px; flex: 1; border: 1px solid rgba(46, 213, 115, 0.3);">
+          <div style="font-size: 0.8rem; color: var(--accent-green);">ปิดเคสสำเร็จแล้ว</div>
+          <div style="font-size: 1.3rem; font-weight: bold; color: var(--accent-green);" id="historyTotalClosed">0</div>
+        </div>
+        <div style="background: rgba(138, 180, 248, 0.15); padding: 10px 16px; border-radius: 8px; flex: 1; border: 1px solid rgba(138, 180, 248, 0.3);">
+          <div style="font-size: 0.8rem; color: #8ab4f8;">คะแนนบริการเฉลี่ย</div>
+          <div style="font-size: 1.3rem; font-weight: bold; color: #8ab4f8;" id="historyAvgScore">0</div>
+        </div>
+      </div>
+
+      <div style="max-height: 50vh; overflow-y: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+          <thead>
+            <tr style="background: rgba(18, 30, 52, 0.9); color: var(--text-sub);">
+              <th style="padding: 10px;">เคส ID</th>
+              <th style="padding: 10px;">ลูกค้า / แบรนด์</th>
+              <th style="padding: 10px;">ปัญหาหลัก</th>
+              <th style="padding: 10px; text-align: center;">คะแนน</th>
+              <th style="padding: 10px; text-align: center;">สถานะเคส</th>
+              <th style="padding: 10px; text-align: center;">ดูข้อมูล</th>
+            </tr>
+          </thead>
+          <tbody id="agentHistoryTableBody"></tbody>
+        </table>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 15px;">
+        <button class="btn-cancel" onclick="closeAgentHistoryModal()">ปิดหน้าต่าง</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentUserRole = "staff";
+    let agentMap = {};
+    let rawAgentsList = [];
+    let currentLoadedCases = [];
+    let selectedCaseIdForAssign = null;
+    let selectedPriorityForAssign = 'vvip';
+    let currentPerfFilter = 'vvip';
+
+    function isManagerOrSupervisor() {
+      return ['supervisor', 'manager', 'admin', 'it'].includes(currentUserRole.toLowerCase());
+    }
+
+    async function loadCurrentUser() {
+      try {
+        const res = await fetch('/api/me');
+        if (res.ok) {
+          const data = await res.json();
+          currentUserRole = (data.role || localStorage.getItem('role') || 'staff').toLowerCase();
+          
+          if (data.name || data.username || data.firstname) {
+            document.getElementById('sidebar-user-name').innerText = data.name || data.firstname || data.username;
+          }
+          if (data.position || data.title) {
+            document.getElementById('sidebar-user-role').innerText = data.position || data.title;
+          }
+          
+          const roleLabels = {
+            'supervisor': 'หัวหน้างาน',
+            'manager': 'ผู้จัดการ (Manager)',
+            'admin': 'ผู้ดูแลระบบ',
+            'it': 'เจ้าหน้าที่ไอที',
+            'staff': 'พนักงานทั่วไป'
+          };
+          document.getElementById('sidebar-user-status').innerText = roleLabels[currentUserRole] || 'เจ้าหน้าที่';
+        } else {
+          currentUserRole = (localStorage.getItem('role') || 'staff').toLowerCase();
+        }
+      } catch (e) {
+        currentUserRole = (localStorage.getItem('role') || 'staff').toLowerCase();
+      }
+
+      // ควบคุมสิทธิ์การแสดงผล UI
+      if (isManagerOrSupervisor()) {
+        document.getElementById('managerPerformanceSection').style.display = 'block';
+        document.getElementById('caseExportTools').style.display = 'flex';
+      } else {
+        document.getElementById('managerPerformanceSection').style.display = 'none';
+        document.getElementById('caseExportTools').style.display = 'none';
+      }
+    }
+
+    async function loadAgentMap() {
+      try {
+        const res = await fetch('/api/agents');
+        if (res.ok) {
+          rawAgentsList = await res.json();
+          const dropdown = document.getElementById('agentSelectDropdown');
+          dropdown.innerHTML = '<option value="">-- กรุณาเลือกพนักงานเพื่อดูแลเคสนี้ --</option>';
+
+          rawAgentsList.forEach(a => {
+            const nickname = a.nickname ? ` (${a.nickname})` : '';
+            const fullName = `${a.firstname} ${a.lastname}${nickname}`;
+            agentMap[a.agent_code] = fullName;
+
+            dropdown.innerHTML += `<option value="${a.agent_code}">${fullName} [${a.agent_code}] - ${a.department || 'Call Center'}</option>`;
+          });
+        }
+      } catch (e) {
+        console.warn("Load agent map error:", e);
+      }
+    }
+
+    function toScore100(val) {
+      const num = parseFloat(val) || 0;
+      return (num > 0 && num <= 5) ? Math.round(num * 20) : Math.round(num);
+    }
+
+    function getCaseDurationBadge(c) {
+      let createdDate = null;
+      if (c.filename) {
+        const m = c.filename.match(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/);
+        if (m) createdDate = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`);
+      }
+      if (!createdDate && (c.created_at || c.handled_at)) {
+        createdDate = new Date(c.created_at || c.handled_at);
+      }
+
+      if (!createdDate || isNaN(createdDate.getTime())) {
+        return `<span style="color: var(--text-sub); font-size: 0.85rem;">—</span>`;
+      }
+
+      const now = new Date();
+      const diffMs = now - createdDate;
+      if (diffMs < 0) return `<span style="color: var(--text-sub); font-size: 0.85rem;">เพิ่งเข้ามา</span>`;
+
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+
+      let timeText = "";
+      let badgeStyle = "";
+
+      if (diffDays > 0) {
+        timeText = `${diffDays} วัน ${diffHours % 24} ชม.`;
+        badgeStyle = "background: rgba(255, 71, 87, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red);";
+      } else if (diffHours > 0) {
+        timeText = `${diffHours} ชม. ${diffMins % 60} น.`;
+        badgeStyle = diffHours >= 3 
+          ? "background: rgba(255, 165, 2, 0.2); color: var(--accent-gold); border: 1px solid var(--accent-gold);"
+          : "background: rgba(56, 103, 214, 0.15); color: #8ab4f8; border: 1px solid rgba(138, 180, 248, 0.3);";
+      } else {
+        timeText = `${diffMins || 1} นาที`;
+        badgeStyle = "background: rgba(46, 213, 115, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green);";
+      }
+
+      return `
+        <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 6px; font-size: 0.82rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; ${badgeStyle}">
+          <i class="far fa-clock"></i> ${timeText}
+        </span>
+      `;
+    }
+
+    function setPerformanceFilter(filterType) {
+      currentPerfFilter = filterType;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`filter-${filterType}`);
+      if (activeBtn) activeBtn.classList.add('active');
+      renderPerformanceTable(currentLoadedCases);
+    }
+
+    // คำนวณและเรนเดอร์ตารางผลงานรายบุคคล
+    function renderPerformanceTable(cases) {
+      if (!isManagerOrSupervisor()) return;
+
+      const filteredCases = (cases || []).filter(c => {
+        const brandStr = String(c.brand || '').toLowerCase();
+        const priorityStr = String(c.priority || '').toLowerCase();
+        const isVvip = brandStr.includes('omazz') || priorityStr === 'vvip';
+
+        if (currentPerfFilter === 'vvip') return isVvip;
+        if (currentPerfFilter === 'general') return !isVvip;
+        return true;
+      });
+
+      const stats = {};
+      filteredCases.forEach(c => {
+        const code = (c.assigned_agent_code || c.handled_by || "").trim();
+        if (!code) return;
+
+        if (!stats[code]) {
+          stats[code] = {
+            code: code,
+            name: agentMap[code] || code,
+            totalAssigned: 0,
+            closedCases: 0,
+            sumScore: 0,
+            validScoreCount: 0,
+            sumSat: 0,
+            validSatCount: 0
+          };
+        }
+
+        stats[code].totalAssigned++;
+        const isClosed = (c.status === "done" || c.case_stage === "resolved" || Boolean(c.closed_by));
+        if (isClosed) stats[code].closedCases++;
+
+        const agentScore = toScore100(c.agent_score);
+        if (agentScore > 0) {
+          stats[code].sumScore += agentScore;
+          stats[code].validScoreCount++;
+        }
+
+        const satScore = toScore100(c.sentiment_score);
+        if (satScore > 0) {
+          stats[code].sumSat += satScore;
+          stats[code].validSatCount++;
+        }
+      });
+
+      const list = Object.values(stats);
+      list.sort((a, b) => {
+        const avgA = a.validScoreCount ? a.sumScore / a.validScoreCount : 0;
+        const avgB = b.validScoreCount ? b.sumScore / b.validScoreCount : 0;
+        return avgB - avgA;
+      });
+
+      const tbody = document.getElementById('performance-table-body');
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-sub); padding: 25px;">ไม่มีข้อมูลสถิติของช่วงเวลานี้</td></tr>`;
+        return list;
+      }
+
+      const medals = ['🥇', '🥈', '🥉'];
+      tbody.innerHTML = list.map((item, idx) => {
+        const avgScore = item.validScoreCount ? (item.sumScore / item.validScoreCount).toFixed(1) : "—";
+        const avgSat = item.validSatCount ? Math.round(item.sumSat / item.validSatCount) + "%" : "—";
+        const rankDisplay = medals[idx] || `<span style="color: var(--text-sub); font-family: 'JetBrains Mono';">#${idx + 1}</span>`;
+
+        return `
+          <tr onclick="openAgentHistoryModal('${item.code}', '${item.name}')" title="คลิกดูประวัติเคสของ ${item.name}">
+            <td style="text-align: center; font-size: 1.1rem;">${rankDisplay}</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-user-circle" style="color: #8fa5ff; font-size: 1.1rem;"></i>
+                <strong style="color: #fff;">${item.name}</strong>
+              </div>
+            </td>
+            <td style="font-family: 'JetBrains Mono'; color: #8fa5ff;">${item.code}</td>
+            <td style="text-align: center; font-family: 'JetBrains Mono'; font-weight: bold; color: #fff;">${item.totalAssigned}</td>
+            <td style="text-align: center; font-family: 'JetBrains Mono'; font-weight: bold; color: var(--accent-green);">${item.closedCases}</td>
+            <td style="text-align: center; font-family: 'JetBrains Mono'; font-weight: bold; color: #fff;">${avgScore}</td>
+            <td style="text-align: center;"><span class="sat-tag">${avgSat}</span></td>
+          </tr>
+        `;
+      }).join('');
+
+      return list;
+    }
+
+    function updateTopScorerBadge(cases) {
+      const stats = {};
+      cases.forEach(c => {
+        const code = (c.assigned_agent_code || c.handled_by || "").trim();
+        if (!code) return;
+        if (!stats[code]) {
+          stats[code] = { name: agentMap[code] || code, sumScore: 0, count: 0 };
+        }
+        const score = toScore100(c.agent_score);
+        if (score > 0) {
+          stats[code].sumScore += score;
+          stats[code].count++;
+        }
+      });
+
+      const list = Object.values(stats).filter(s => s.count > 0);
+      list.sort((a, b) => (b.sumScore / b.count) - (a.sumScore / a.count));
+
+      const topDisplay = document.getElementById('top-agent-display');
+      if (list.length > 0) {
+        const top = list[0];
+        topDisplay.innerHTML = `👑 ${top.name} (${(top.sumScore / top.count).toFixed(1)} คะแนน)`;
+      } else {
+        topDisplay.innerText = "—";
+      }
+    }
+
+    async function fetchUrgentCases() {
+      try {
+        let rawCases = [];
+        let res = await fetch('/api/urgent-cases');
+        if (res.ok) {
+          rawCases = await res.json();
+        } else {
+          const fallbackRes = await fetch('/files');
+          if (fallbackRes.ok) rawCases = await fallbackRes.json();
+        }
+
+        const cases = (rawCases || []).filter(c => {
+          const brandStr = String(c.brand || '').trim().toLowerCase();
+          const priorityStr = String(c.priority || '').trim().toLowerCase();
+          const hasAssignee = Boolean((c.assigned_agent_code && c.assigned_agent_code.trim()) || 
+                                      (c.handled_by && c.handled_by.trim()));
+
+          return brandStr.includes('omazz') || priorityStr === 'vvip' || hasAssignee;
+        });
+
+        currentLoadedCases = cases;
+        updateTopScorerBadge(cases);
+        renderPerformanceTable(cases);
+
+        let urgentN = 0, vvipN = 0, claimedN = 0;
+        const tbody = document.getElementById('case-table-body');
+
+        if (!cases || cases.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 40px; color: var(--text-sub);"><i class="fas fa-check-circle" style="color: var(--accent-green); font-size: 1.5rem; margin-bottom: 10px; display:block;"></i>ไม่มีเคสค้างในระบบ ทุกอย่างเรียบร้อยดี</td></tr>`;
+          document.getElementById('urgent-count').innerText = 0;
+          document.getElementById('vvip-count').innerText = 0;
+          document.getElementById('claimed-count').innerText = 0;
+          return;
+        }
+
+        const canAssign = isManagerOrSupervisor();
+
+        tbody.innerHTML = cases.map(c => {
+          const score = toScore100(c.sentiment_score ?? 60);
+          const rawAssignee = (c.assigned_agent_code || c.handled_by || "").trim();
+          const isAssigned = Boolean(rawAssignee !== "");
+          const displayName = agentMap[rawAssignee] || rawAssignee;
+
+          const isVvip = (String(c.priority || '').toLowerCase() === 'vvip') || (String(c.brand || '').toLowerCase().includes('omazz'));
+          const priorityLabel = isVvip ? 'VVIP' : 'URGENT';
+          const priorityClass = isVvip ? 'p-vvip' : 'p-urgent';
+
+          if (isVvip) vvipN++; else urgentN++;
+          if (isAssigned) claimedN++;
+
+          const brand = c.brand && c.brand !== 'Unknown' ? c.brand : (isVvip ? 'Omazz' : 'ลูกค้าทั่วไป');
+          const custName = (c.firstname && c.firstname !== '-') ? `${c.firstname} ${c.lastname || ''}`.trim() : brand;
+
+          let actionButtonHtml = '';
+          if (isAssigned) {
+            actionButtonHtml = `<a href="/warranty/${c.id}" style="color: var(--accent-blue); text-decoration: none; font-size: 0.85rem;"><i class="fas fa-external-link-alt"></i> ดูข้อมูล</a>`;
+          } else if (canAssign) {
+            actionButtonHtml = `<button class="claim-btn" onclick="openAssignModal(${c.id}, '${custName}', '${isVvip ? 'vvip' : 'urgent'}')"><i class="fas fa-user-plus"></i> มอบหมายงาน</button>`;
+          } else {
+            actionButtonHtml = `<span style="color: var(--text-sub); font-size: 0.8rem; font-style: italic;"><i class="fas fa-lock"></i> รอมอบหมาย</span>`;
+          }
+
+          return `
+            <tr>
+              <td>#${c.id}</td>
+              <td><span class="priority-badge ${priorityClass}">${priorityLabel}</span></td>
+              <td><strong>${custName}</strong></td>
+              <td>${c.customer_phone || '-'}</td>
+              <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.summary || c.issue || '-'}</td>
+              <td><span style="color: ${score <= 50 ? 'var(--accent-red)' : 'var(--accent-gold)'}; font-weight: bold;">${score}%</span></td>
+              <td>
+                ${isAssigned
+                  ? `<span class="claimed-tag" ${canAssign ? `onclick="openAgentHistoryModal('${rawAssignee}', '${displayName}')" style="cursor: pointer;" title="คลิกดูประวัติเคส"` : ''}><i class="fas fa-user-shield"></i> ${displayName}</span>`
+                  : `<span style="color: var(--text-sub); font-style: italic;">รอมอบหมาย</span>`
+                }
+              </td>
+              <td>${getCaseDurationBadge(c)}</td>
+              <td>${actionButtonHtml}</td>
+            </tr>
+          `;
+        }).join('');
+
+        document.getElementById('urgent-count').innerText = urgentN;
+        document.getElementById('vvip-count').innerText = vvipN;
+        document.getElementById('claimed-count').innerText = claimedN;
+
+      } catch (err) {
+        console.error("Error loading urgent cases:", err);
+      }
+    }
+
+    // มอบหมายเคส
+    function openAssignModal(caseId, custName, priority) {
+      if (!isManagerOrSupervisor()) return;
+      selectedCaseIdForAssign = caseId;
+      selectedPriorityForAssign = priority;
+      document.getElementById('modalCaseDesc').innerText = `มอบหมายเคส #${caseId} (ลูกค้า: ${custName})`;
+      document.getElementById('agentSelectDropdown').value = "";
+      document.getElementById('assignModal').classList.add('active');
+    }
+
+    function closeAssignModal() {
+      document.getElementById('assignModal').classList.remove('active');
+    }
+
+    async function confirmAssignCase() {
+      const selectedAgent = document.getElementById('agentSelectDropdown').value;
+      if (!selectedAgent) {
+        alert("กรุณาเลือกพนักงานที่ต้องการมอบหมาย");
+        return;
+      }
+
+      try {
+        let res = await fetch(`/api/urgent-cases/${selectedCaseIdForAssign}/claim`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agent_code: selectedAgent, priority: selectedPriorityForAssign })
+        });
+
+        if (!res.ok) {
+          res = await fetch(`/api/cases/${selectedCaseIdForAssign}/transfer`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ assigned_agent_code: selectedAgent })
+          });
+        }
+
+        if (res.ok) {
+          closeAssignModal();
+          fetchUrgentCases();
+        } else {
+          alert("ไม่สามารถมอบหมายเคสได้ กรุณาลองใหม่อีกครั้ง");
+        }
+      } catch (e) {
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + e.message);
+      }
+    }
+
+    // Modal ประวัติเคส
+    function openAgentHistoryModal(agentCode, agentName) {
+      if (!isManagerOrSupervisor()) return;
+      document.getElementById('historyAgentName').innerText = agentName;
+      
+      const agentCases = (currentLoadedCases || []).filter(c => {
+        const assigned = (c.assigned_agent_code || c.handled_by || "").trim();
+        return assigned === agentCode || assigned === agentName;
+      });
+
+      const totalAssigned = agentCases.length;
+      const closedCases = agentCases.filter(c => c.status === "done" || c.case_stage === "resolved" || Boolean(c.closed_by));
+      
+      let validScores = agentCases.map(c => toScore100(c.agent_score)).filter(s => s > 0);
+      const avgScore = validScores.length ? (validScores.reduce((a, b) => a + b, 0) / validScores.length).toFixed(1) : "—";
+
+      document.getElementById('historyTotalAssigned').innerText = totalAssigned;
+      document.getElementById('historyTotalClosed').innerText = closedCases.length;
+      document.getElementById('historyAvgScore').innerText = avgScore;
+
+      const tbody = document.getElementById('agentHistoryTableBody');
+      if (agentCases.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 25px; color: var(--text-sub);">ยังไม่มีประวัติเคสของพนักงานท่านนี้</td></tr>`;
+      } else {
+        tbody.innerHTML = agentCases.map(c => {
+          const isClosed = (c.status === "done" || c.case_stage === "resolved" || Boolean(c.closed_by));
+          const statusBadge = isClosed 
+            ? `<span style="color: var(--accent-green); background: rgba(46, 213, 115, 0.15); padding: 3px 8px; border-radius: 4px; font-size: 0.75rem;"><i class="fas fa-check-circle"></i> ปิดเคสแล้ว</span>`
+            : `<span style="color: var(--accent-gold); background: rgba(255, 165, 2, 0.15); padding: 3px 8px; border-radius: 4px; font-size: 0.75rem;"><i class="fas fa-spinner fa-spin"></i> กำลังดำเนินการ</span>`;
+
+          const score = toScore100(c.sentiment_score ?? 60);
+
+          return `
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <td style="padding: 10px; font-family: 'JetBrains Mono'; font-weight: bold; color: #fff;">#${c.id}</td>
+              <td style="padding: 10px;">${c.brand || 'Omazz'} (${c.customer_phone || '-'})</td>
+              <td style="padding: 10px; max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.summary || c.issue || '-'}</td>
+              <td style="padding: 10px; text-align: center; font-family: 'JetBrains Mono'; font-weight: bold; color: ${score <= 50 ? 'var(--accent-red)' : 'var(--accent-gold)'};">${score}%</td>
+              <td style="padding: 10px; text-align: center;">${statusBadge}</td>
+              <td style="padding: 10px; text-align: center;">
+                <a href="/warranty/${c.id}" target="_blank" style="color: var(--accent-blue); text-decoration: none; font-size: 0.85rem;"><i class="fas fa-external-link-alt"></i> เปิดดู</a>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('agentHistoryModal').classList.add('active');
+    }
+
+    function closeAgentHistoryModal() {
+      document.getElementById('agentHistoryModal').classList.remove('active');
+    }
+
+    // ส่งออก CSV
+    function escapeCsv(str) {
+      return `"${String(str ?? '').replace(/"/g, '""')}"`;
+    }
+
+    function exportAgentPerformanceCsv() {
+      if (!isManagerOrSupervisor()) {
+        alert("ขออภัย: เฉพาะหัวหน้างานหรือผู้จัดการเท่านั้นที่สามารถส่งออกรายงานนี้ได้");
+        return;
+      }
+
+      const statsList = renderPerformanceTable(currentLoadedCases);
+      if (!statsList || statsList.length === 0) {
+        alert("ไม่มีข้อมูลสถิติพนักงานสำหรับส่งออก");
+        return;
+      }
+
+      const cases = currentLoadedCases || [];
+      const urgentCount = cases.length;
+      const vvipCases = cases.filter(c => String(c.brand || "").toLowerCase().includes("omazz"));
+      const normalCases = cases.filter(c => !String(c.brand || "").toLowerCase().includes("omazz"));
+      const adminCareCount = cases.filter(c => Boolean(c.assigned_agent_code || c.handled_by || c.closed_by)).length;
+
+      let topAgentDisplay = "-";
+      if (statsList.length > 0) {
+        const top = statsList[0];
+        const topScore = top.validScoreCount ? (top.sumScore / top.validScoreCount).toFixed(1) : (top.avgScore || "-");
+        topAgentDisplay = `${top.name || top.code} (${topScore} คะแนน)`;
+      }
+
+      let lines = [];
+      // =========================================================
+      // ส่วนที่ 1: สรุปภาพรวมแดชบอร์ด
+      // =========================================================
+      lines.push("=== ส่วนที่ 1: สรุปภาพรวมแดชบอร์ด (Dashboard Overview) ===");
+      lines.push("หัวข้อ,จำนวน / รายละเอียด");
+      lines.push(`"เคสต้องเข้าดูแลด่วนทั้งหมด","${urgentCount}"`);
+      lines.push(`"ลูกค้า VVIP (แบรนด์ Omazz)","${vvipCases.length}"`);
+      lines.push(`"ลูกค้าทั่วไป (แบรนด์ Lotus / Dunlopillo)","${normalCases.length}"`);
+      lines.push(`"เคสที่กำลังมีแอดมินประกบดูแล","${adminCareCount}"`);
+      lines.push(`"ท็อปสกอร์พนักงานประจำรอบ","${topAgentDisplay}"`);
+      lines.push("");
+
+      const headers = [
+        "อันดับ",
+        "ชื่อพนักงาน",
+        "รหัสพนักงาน",
+        "เคสที่ได้รับมอบหมาย",
+        "เคสที่ปิดสำเร็จ",
+        "คะแนนบริการเฉลี่ย",
+        "ความพึงพอใจลูกค้าเฉลี่ย",
+        "รายชื่อลูกค้าและหมายเลขเคสที่ปิดสำเร็จ"
+      ];
+
+      const generateRows = (agentItems, targetCases, isVVIP) => {
+        let rows = [];
+        agentItems.forEach((item, idx) => {
+          const agentCode = String(item.code || "").trim();
+          const avgScore = item.validScoreCount ? (item.sumScore / item.validScoreCount).toFixed(1) : "—";
+          const avgSat = item.validSatCount ? Math.round(item.sumSat / item.validSatCount) + "%" : "—";
+
+          const matchedCases = targetCases.filter(c => {
+            const cCode = String(c.assigned_agent_code || c.handled_by || c.agent_code || "").trim();
+            return cCode === agentCode;
+          });
+
+          const closedCases = matchedCases.filter(c => {
+            return (c.status === "done" || c.case_stage === "resolved" || Boolean(c.closed_by));
+          });
+
+          const closedListStr = closedCases.map(c => {
+            const custName = `${c.firstname || ""} ${c.lastname || ""}`.trim() || c.customer_name || "ลูกค้า";
+            const phone = c.customer_phone || "-";
+            const brand = c.brand || (isVVIP ? "Omazz" : "Lotus");
+            return `#${c.id} ${custName} (${phone}) [${brand}]`;
+          }).join(" ; ") || "—";
+
+          rows.push([
+            idx + 1,
+            item.name || "-",
+            agentCode || "-",
+            matchedCases.length,
+            closedCases.length,
+            avgScore,
+            avgSat,
+            closedListStr
+          ]);
+        });
+        return rows;
+      };
+
+      const vvipAgents = statsList.filter(item => {
+        return vvipCases.some(c => String(c.assigned_agent_code || c.handled_by || "").trim() === String(item.code || "").trim());
+      });
+      const normalAgents = statsList.filter(item => {
+        return normalCases.some(c => String(c.assigned_agent_code || c.handled_by || "").trim() === String(item.code || "").trim());
+      });
+
+      // =========================================================
+      // ส่วนที่ 2.1: กลุ่มลูกค้า VVIP (Omazz)
+      // =========================================================
+      lines.push("=== ส่วนที่ 2.1: ข้อมูลผลงานกลุ่มดูแลลูกค้า VVIP (แบรนด์ Omazz) ===");
+      lines.push(headers.map(h => `"${h}"`).join(","));
+      generateRows(vvipAgents, vvipCases, true).forEach(r => {
+        lines.push(r.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","));
+      });
+      lines.push("");
+
+      // =========================================================
+      // ส่วนที่ 2.2: กลุ่มลูกค้าทั่วไป (Lotus / Dunlopillo)
+      // =========================================================
+      lines.push("=== ส่วนที่ 2.2: ข้อมูลผลงานกลุ่มดูแลลูกค้าทั่วไป (แบรนด์ Lotus / Dunlopillo) ===");
+      lines.push(headers.map(h => `"${h}"`).join(","));
+      generateRows(normalAgents, normalCases, false).forEach(r => {
+        lines.push(r.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","));
+      });
+
+      const csvData = "\ufeff" + lines.join("\r\n");
+      const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+      const dlUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = dlUrl;
+      a.download = `agent_performance_summary_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(dlUrl);
+    }
+
+    function exportCasesCsv() {
+      if (!isManagerOrSupervisor()) {
+        alert("ขออภัย: เฉพาะหัวหน้างานหรือผู้จัดการเท่านั้นที่สามารถส่งออกรายงานนี้ได้");
+        return;
+      }
+
+      if (!currentLoadedCases || currentLoadedCases.length === 0) {
+        alert("ไม่มีรายการเคสสำหรับส่งออก");
+        return;
+      }
+
+      const headers = ["เคส ID", "ระดับ", "แบรนด์", "ลูกค้า", "เบอร์โทร", "ประเด็นปัญหา", "ความพึงพอใจ (%)", "คะแนนพนักงาน", "ผู้ดูแลเคส", "สถานะเคส"];
+      const rows = currentLoadedCases.map(c => {
+        const assignee = agentMap[c.assigned_agent_code || c.handled_by] || c.assigned_agent_code || "รอมอบหมาย";
+        const custName = (c.firstname && c.firstname !== '-') ? `${c.firstname} ${c.lastname || ''}`.trim() : (c.brand || 'ลูกค้า');
+        return [
+          c.id,
+          escapeCsv(c.priority || 'VVIP'),
+          escapeCsv(c.brand || 'Omazz'),
+          escapeCsv(custName),
+          escapeCsv(c.customer_phone || '-'),
+          escapeCsv(c.summary || c.issue || '-'),
+          toScore100(c.sentiment_score),
+          toScore100(c.agent_score),
+          escapeCsv(assignee),
+          escapeCsv(c.status || 'in_progress')
+        ];
+      });
+
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+      const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cases_followup_report_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // เริ่มทำงานเมื่อเปิดหน้า
+    loadCurrentUser().then(() => {
+      loadAgentMap().then(() => {
+        fetchUrgentCases();
+        setInterval(fetchUrgentCases, 10000);
+      });
+    });
+  </script>
+</body>
+</html>

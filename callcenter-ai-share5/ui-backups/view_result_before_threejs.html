@@ -1,0 +1,65 @@
+<div class="chat-modal-view" style="font-family: 'Segoe UI', Tahoma, sans-serif; color: #333; padding: 10px;">
+    
+    <div class="summary-section" style="background: #fff9db; padding: 15px; border-left: 5px solid #fab005; margin-bottom: 25px; border-radius: 8px;">
+        <strong style="color: #862e10; font-size: 16px;">📌 สรุปใจความสำคัญ:</strong>
+        <div id="modal_summary_text" style="margin-top: 8px; font-size: 15px; line-height: 1.6; color: #444;">
+            AI กำลังสรุปข้อมูล...
+        </div>
+    </div>
+
+    <div id="modal_chat_flow" class="chat-flow" style="display: flex; flex-direction: column; gap: 18px;">
+        </div>
+</div>
+
+<script>
+    // ฟังก์ชันนี้จะถูกเรียกใช้หลังจากโหลดเนื้อหาเข้า Modal
+    function updateModalContent(data) {
+        // 1. อัปเดตบทสรุป
+        const summaryDiv = document.getElementById("modal_summary_text");
+        summaryDiv.innerText = data.summary || "ไม่มีบทสรุป";
+
+        // 2. วาดแชท
+        const chatFlow = document.getElementById("modal_chat_flow");
+        chatFlow.innerHTML = "";
+
+        const convo = data.conversation || data.segments || [];
+        
+        if (convo.length === 0) {
+            chatFlow.innerHTML = "<p style='text-align:center; color:#999;'>ไม่พบข้อมูลบทสนทนา</p>";
+            return;
+        }
+
+        convo.forEach(msg => {
+            const isAgent = ["พนักงาน", "Agent", "พนักงานบริการ"].includes(msg.speaker);
+            
+            // กำหนดสีอารมณ์
+            let sentimentHtml = "";
+            if (msg.sentiment === 'positive') sentimentHtml = "😊 พอใจ";
+            else if (msg.sentiment === 'negative') sentimentHtml = "🚩 หงุดหงิด";
+            else if (msg.sentiment) sentimentHtml = "😐 ปกติ";
+
+            const msgHtml = `
+                <div class="message-group" style="display: flex; flex-direction: column; ${isAgent ? 'align-items: flex-start;' : 'align-items: flex-end;'}">
+                    <span style="font-size: 11px; color: #888; margin-bottom: 4px; padding: 0 5px; font-weight: bold;">
+                        ${msg.speaker}
+                    </span>
+                    <div class="bubble" style="padding: 12px 16px; max-width: 85%; font-size: 14.5px; line-height: 1.5; border-radius: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                        ${isAgent ? 'background-color: #4a6cf7; color: white; border-top-left-radius: 4px;' : 'background-color: #ffffff; color: #212529; border-top-right-radius: 4px; border: 1px solid #eee;'}">
+                        ${msg.text}
+                    </div>
+                    <div class="meta" style="font-size: 10px; color: #adb5bd; margin-top: 5px; font-style: italic;">
+                        ${sentimentHtml ? 'อารมณ์: ' + sentimentHtml : ''}
+                    </div>
+                </div>
+            `;
+            chatFlow.insertAdjacentHTML('beforeend', msgHtml);
+        });
+    }
+</script>
+
+<style>
+    .modal-content::-webkit-scrollbar { width: 6px; }
+    .modal-content::-webkit-scrollbar-track { background: transparent; }
+    .modal-content::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 10px; }
+    .modal-content::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
+</style>

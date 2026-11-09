@@ -1,0 +1,105 @@
+﻿from pathlib import Path
+import re
+
+html_path = Path("backend/templates/urgent_cases.html")
+if not html_path.exists():
+    print("❌ ไม่พบไฟล์ backend/templates/urgent_cases.html")
+    exit()
+
+content = html_path.read_text(encoding="utf-8")
+
+new_func = """    function exportAgentPerformanceCsv() {
+      if (!isManagerOrSupervisor()) {
+        alert("ขออภัย: เฉพาะหัวหน้างานหรือผู้จัดการเท่านั้นที่สามารถส่งออกรายงานนี้ได้");
+        return;
+      }
+
+      const statsList = renderPerformanceTable(currentLoadedCases);
+      if (!statsList || statsList.length === 0) {
+        alert("ไม่มีข้อมูลสถิติพนักงานสำหรับส่งออก");
+        return;
+      }
+
+      // --- ส่วนที่ 1: ดึงข้อมูลสรุปภาพรวมจาก Dashboard Cards ---
+      const urgentVal = document.getElementById("urgentCasesCount")?.innerText?.trim() 
+                     || document.querySelector(".summary-card:nth-child(1) .card-val")?.innerText?.trim() || "0";
+      const vvipVal = document.getElementById("vvipCount")?.innerText?.trim() 
+                   || document.querySelector(".summary-card:nth-child(2) .card-val")?.innerText?.trim() || "0";
+      const adminVal = document.getElementById("adminCareCount")?.innerText?.trim() 
+                    || document.querySelector(".summary-card:nth-child(3) .card-val")?.innerText?.trim() || "0";
+      const topAgentVal = document.getElementById("topAgentName")?.innerText?.trim() 
+                       || document.querySelector(".summary-card:nth-child(4) .card-val")?.innerText?.trim() || "-";
+
+      let csvLines = [];
+      csvLines.push("=== ส่วนที่ 1: สรุปภาพรวมแดชบอร์ด (Dashboard Overview) ===");
+      csvLines.push("หัวข้อ,จำนวน / รายละเอียด");
+      csvLines.push(`\"เคสต้องเข้าดูแลด่วน\",\"${urgentVal}\"`);
+      csvLines.push(`\"ลูกค้า VVIP\",\"${vvipVal}\"`);
+      csvLines.push(`\"เคสที่กำลังมีแอดมินประกบดูแล\",\"${adminVal}\"`);
+      csvLines.push(`\"ท็อปสกอร์พนักงานประจำรอบ\",\"${topAgentVal}\"`);
+      csvLines.push("");
+
+      // --- ส่วนที่ 2: สรุปผลงานพนักงานพร้อมรายชื่อเคสที่ปิดสำเร็จ ---
+      csvLines.push("=== ส่วนที่ 2: ข้อมูลผลงานพนักงานและการปิดจ็อบรายบุคคล ===");
+      const headers = [
+        "อันดับ",
+        "ชื่อพนักงาน",
+        "รหัสพนักงาน",
+        "เคสที่ได้รับมอบหมาย",
+        "เคสที่ปิดสำเร็จ",
+        "คะแนนบริการเฉลี่ย (เต็ม 100)",
+        "ความพึงพอใจลูกค้าเฉลี่ย (%)",
+        "รายชื่อลูกค้าและหมายเลขเคสที่ปิดสำเร็จ"
+      ];
+      csvLines.push(headers.map(h => `\"${h}\"`).join(","));
+
+      statsList.forEach((item, idx) => {
+        const avgScore = item.validScoreCount ? (item.sumScore / item.validScoreCount).toFixed(1) : "0";
+        const avgSat = item.validSatCount ? Math.round(item.sumSat / item.validSatCount) : "0";
+
+        // ค้นหาเคสที่ปิดสำเร็จของพนักงานท่านนี้จาก currentLoadedCases
+        const closedCases = (currentLoadedCases || []).filter(c => {
+          const isAgentMatch = (c.assigned_agent_code === item.agent_code || c.agent_code === item.agent_code || c.handled_by === item.agent_code);
+          const isClosed = (c.status === "done" || c.case_stage === "resolved" || Boolean(c.closed_by));
+          return isAgentMatch && isClosed;
+        });
+
+        const closedCasesStr = closedCases.map(c => {
+          const custName = `${c.firstname || ""} ${c.lastname || ""}`.trim() || c.customer_name || "ลูกค้า";
+          const phone = c.customer_phone || "-";
+          const brand = c.brand || "Lotus";
+          return `#${c.id} ${custName} (${phone}) [${brand}]`;
+        }).join(" ; ") || "—";
+
+        const rowData = [
+          idx + 1,
+          item.name || "-",
+          item.agent_code || "-",
+          item.totalCases || 0,
+          item.resolvedCases || closedCases.length || 0,
+          avgScore,
+          `${avgSat}%`,
+          closedCasesStr
+        ];
+        csvLines.push(rowData.map(val => `\"${String(val).replace(/\"/g, '\"\"')}\"`).join(","));
+      });
+
+      const csvString = "\ufeff" + csvLines.join("\r\n");
+      const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `agent_performance_summary_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }"""
+
+pattern = r'function\s+exportAgentPerformanceCsv\s*\(\)\s*\{[\s\S]*?URL\.revokeObjectURL\(url\);\s*\}'
+if re.search(pattern, content):
+    content = re.sub(pattern, lambda m: new_func, content, count=1)
+    html_path.write_text(content, encoding="utf-8")
+    print("✅ อัปเดตฟังก์ชัน exportAgentPerformanceCsv ใน urgent_cases.html สำเร็จเรียบร้อยแล้ว!")
+else:
+    print("⚠️ ไม่พบแพทเทิร์นฟังก์ชันเดิม กรุณาตรวจสอบตำแหน่งอีกครั้ง")

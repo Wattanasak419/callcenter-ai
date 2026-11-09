@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Call Center - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #07111f;
+            --bg-soft: rgba(9, 20, 38, 0.76);
+            --panel: rgba(10, 24, 44, 0.66);
+            --panel-strong: rgba(12, 29, 54, 0.82);
+            --primary: #6ea8ff;
+            --primary-2: #8b7bff;
+            --text: #ecf3ff;
+            --text-2: #9db0cf;
+            --text-3: #6e81a7;
+            --border: rgba(155, 180, 220, 0.18);
+            --error: #ff6b8b;
+            --shadow: 0 30px 80px rgba(0,0,0,0.45);
+            --glow: 0 0 0 1px rgba(110,168,255,0.15), 0 0 30px rgba(81,125,255,0.16);
+        }
+        html, body { min-height: 100%; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, rgba(83, 114, 255, 0.22), transparent 28%),
+                        radial-gradient(circle at bottom right, rgba(111, 70, 255, 0.18), transparent 24%),
+                        var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        #scene-bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.88;
+        }
+        .noise {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background-image: radial-gradient(rgba(255,255,255,0.05) 0.7px, transparent 0.7px);
+            background-size: 22px 22px;
+            opacity: 0.18;
+            mask-image: linear-gradient(to bottom, transparent, rgba(255,255,255,0.9), transparent);
+        }
+        .auth-shell {
+            position: relative;
+            z-index: 2;
+            width: min(1120px, 96vw);
+            min-height: 680px;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            overflow: hidden;
+            background: rgba(7, 17, 31, 0.34);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: var(--shadow);
+        }
+        .hero {
+            padding: 52px;
+            position: relative;
+            background: linear-gradient(180deg, rgba(6, 15, 30, 0.36), rgba(6, 15, 30, 0.2));
+            border-right: 1px solid var(--border);
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 28px;
+            border-radius: 24px;
+            background: linear-gradient(145deg, rgba(110,168,255,0.12), rgba(139,123,255,0.06));
+            border: 1px solid rgba(168, 189, 255, 0.12);
+            z-index: -1;
+        }
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--text-2);
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            margin-bottom: 26px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            box-shadow: 0 0 16px rgba(110,168,255,0.9);
+        }
+        .hero h1 {
+            font-size: clamp(2.2rem, 4vw, 4rem);
+            line-height: 1.02;
+            letter-spacing: -0.04em;
+            margin-bottom: 18px;
+            max-width: 10ch;
+        }
+        .hero p {
+            max-width: 560px;
+            color: var(--text-2);
+            font-size: 15px;
+            line-height: 1.8;
+            margin-bottom: 34px;
+        }
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 28px;
+        }
+        .hero-card {
+            padding: 18px;
+            border-radius: 20px;
+            background: rgba(8, 20, 38, 0.66);
+            border: 1px solid var(--border);
+            box-shadow: var(--glow);
+        }
+        .hero-card .label {
+            font-size: 12px;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+        .hero-card .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 26px;
+            font-weight: 600;
+        }
+        .hero-card .meta {
+            color: var(--text-2);
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        .auth-panel {
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, rgba(9, 20, 38, 0.92), rgba(9, 20, 38, 0.72));
+        }
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 34px 30px;
+            box-shadow: var(--glow);
+            backdrop-filter: blur(20px);
+        }
+        .logo-mark {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            box-shadow: 0 20px 44px rgba(88, 114, 255, 0.35);
+            margin-bottom: 22px;
+        }
+        .card h2 {
+            font-size: 30px;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+        .sub {
+            font-size: 13px;
+            color: var(--text-2);
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+        }
+        .input-group { margin-bottom: 18px; }
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-2);
+            margin-bottom: 8px;
+            letter-spacing: 0.04em;
+        }
+        .input-group input {
+            width: 100%;
+            background: rgba(3, 11, 22, 0.52);
+            border: 1px solid rgba(164, 186, 255, 0.14);
+            border-radius: 14px;
+            padding: 15px 16px;
+            color: white;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .input-group input:focus {
+            border-color: rgba(110,168,255,0.5);
+            box-shadow: 0 0 0 4px rgba(110,168,255,0.12);
+            background: rgba(5, 16, 30, 0.74);
+        }
+        .btn-submit {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            color: white;
+            padding: 15px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.01em;
+            margin-top: 6px;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            box-shadow: 0 18px 40px rgba(67, 103, 246, 0.3);
+        }
+        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 22px 40px rgba(67, 103, 246, 0.42); }
+        .micro-copy {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 18px 0 8px;
+            font-size: 12px;
+            color: var(--text-3);
+        }
+        .error-msg {
+            color: var(--error);
+            font-size: 13px;
+            margin-top: 12px;
+            display: none;
+        }
+        .system-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 28px;
+        }
+        .badge {
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            font-size: 12px;
+        }
+        @media (max-width: 900px) {
+            body { padding: 20px 0; height: auto; }
+            .auth-shell { grid-template-columns: 1fr; min-height: auto; width: min(92vw, 560px); }
+            .hero { display: none; }
+            .auth-panel { padding: 24px; }
+        }
+    </style>
+<style id="readable-type">
+body { font-size: 17px; }
+button, input, textarea, select, .btn { font-size: 16px !important; }
+p, .intro, .card p { font-size: 17px !important; }
+</style>
+</head>
+<body>
+    <canvas id="scene-bg"></canvas>
+    <div class="noise"></div>
+
+    <div class="auth-shell">
+        <section class="hero">
+            <div class="eyebrow"><span class="dot"></span> OMAZZ CALLING PLATFORM</div>
+            <h1>AI-Powered Call Intelligence Control Room</h1>
+            <p>เข้าสู่ระบบเพื่อดูข้อมูลลูกค้า วิเคราะห์การสนทนา และติดตามคุณภาพการบริการ</p>
+
+            <div class="hero-grid">
+                <div class="hero-card">
+                    <div class="label">Realtime</div>
+                    <div class="value">24/7</div>
+                    <div class="meta">Monitoring pipeline</div>
+                </div>
+                <div class="hero-card">
+                    <div class="label">Insights</div>
+                    <div class="value">AI</div>
+                    <div class="meta">Speech + sentiment</div>
+                </div>
+                <div class="hero-card">
+                    <div class="label">Security</div>
+                    <div class="value">Role</div>
+                    <div class="meta">Access controlled</div>
+                </div>
+            </div>
+
+            <div class="system-badges">
+                <div class="badge">Three.js Visual Background</div>
+                <div class="badge">Glassmorphism Interface</div>
+                <div class="badge">FastAPI + AI Workflow</div>
+            </div>
+        </section>
+
+        <section class="auth-panel">
+            <div class="card">
+                <div class="logo-mark">AI</div>
+                <h2>System Access</h2>
+                <p class="sub">Omazz Calling Platform</p>
+                <form id="login-form" onsubmit="handleLogin(event)">
+                    <div class="input-group">
+                        <label>Username / Email</label>
+                        <input type="text" id="username" placeholder="เช่น EMP001" required autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                    </div>
+                    <div class="micro-copy">
+                        <span>Secure internal access</span>
+                        <span>Role-based login</span>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        Sign In
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </button>
+                    <div id="error-msg" class="error-msg">Invalid username or password</div>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script>
+        function initThreeBackground() {
+            const canvas = document.getElementById('scene-bg');
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 65;
+
+            const pointsGeometry = new THREE.BufferGeometry();
+            const count = 1200;
+            const positions = new Float32Array(count * 3);
+            for (let i = 0; i < count * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 180;
+                positions[i + 1] = (Math.random() - 0.5) * 120;
+                positions[i + 2] = (Math.random() - 0.5) * 120;
+            }
+            pointsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const pointsMaterial = new THREE.PointsMaterial({
+                color: 0x8cb8ff,
+                size: 0.6,
+                transparent: true,
+                opacity: 0.85,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            const particles = new THREE.Points(pointsGeometry, pointsMaterial);
+            scene.add(particles);
+
+            const ring = new THREE.Mesh(
+                new THREE.TorusGeometry(18, 0.18, 20, 180),
+                new THREE.MeshBasicMaterial({ color: 0x6d7bff, transparent: true, opacity: 0.32 })
+            );
+            ring.rotation.x = 1.25;
+            ring.rotation.y = 0.15;
+            ring.position.set(-8, 2, -20);
+            scene.add(ring);
+
+            const ring2 = ring.clone();
+            ring2.scale.set(1.35, 1.35, 1.35);
+            ring2.material = ring.material.clone();
+            ring2.material.opacity = 0.16;
+            ring2.position.set(-8, 2, -26);
+            scene.add(ring2);
+
+            const ambient = new THREE.AmbientLight(0x88aaff, 1.3);
+            scene.add(ambient);
+
+            let mouseX = 0;
+            let mouseY = 0;
+            window.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+                mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+            });
+
+            function animate() {
+                requestAnimationFrame(animate);
+                particles.rotation.y += 0.0009;
+                particles.rotation.x += 0.00035;
+                ring.rotation.z += 0.003;
+                ring2.rotation.z -= 0.002;
+                camera.position.x += ((mouseX * 4) - camera.position.x) * 0.03;
+                camera.position.y += ((-mouseY * 2) - camera.position.y) * 0.03;
+                camera.lookAt(scene.position);
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const agentCode = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            errorMsg.style.display = "none";
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agent_code: agentCode, password: password })
+                });
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    localStorage.setItem('agent_code', data.agent_code);
+                    localStorage.setItem('role', data.role);
+                    localStorage.setItem('firstname', data.firstname || agentCode);
+                    localStorage.setItem('position', data.position || 'Staff');
+                    window.location.href = '/dashboard';
+                } else {
+                    errorMsg.innerText = data.detail || 'Invalid username or password';
+                    errorMsg.style.display = "block";
+                    document.getElementById('password').value = "";
+                }
+            } catch (err) {
+                errorMsg.innerText = 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์';
+                errorMsg.style.display = "block";
+            }
+        }
+
+        initThreeBackground();
+    </script>
+<!-- ROLE-LABEL-I18N-START -->
+<script>
+(function () {
+    function getLanguage() {
+        return localStorage.getItem('preferred_lang') === 'en' ? 'en' : 'th';
+    }
+
+    function getRoleLabel(role, lang) {
+        role = (role || 'staff').toLowerCase();
+
+        if (role === 'it') {
+            return lang === 'en' ? 'Manager' : 'หัวหน้างาน';
+        }
+
+        if (role === 'supervisor') {
+            return lang === 'en' ? 'Supervisor' : 'หัวหน้า';
+        }
+
+        return lang === 'en' ? 'Staff' : 'พนักงาน';
+    }
+
+    function applyRoleLanguage() {
+        const lang = getLanguage();
+        const role = localStorage.getItem('role') || 'staff';
+        const label = getRoleLabel(role, lang);
+
+        [
+            'sidebar_role',
+            'topbar_role',
+            'profile_role',
+            'top_role',
+            'profileRole'
+        ].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = label;
+        });
+
+        const topIdentity = document.getElementById('topIdentity');
+        if (topIdentity) {
+            const code = localStorage.getItem('agent_code') || '';
+            topIdentity.textContent = code ? `${code} · ${label}` : label;
+        }
+
+        document.querySelectorAll('select option[value="it"]').forEach(option => {
+            option.textContent = lang === 'en' ? 'Manager' : 'หัวหน้างาน';
+        });
+
+        if (location.pathname.includes('permission-matrix')) {
+            const headers = document.querySelectorAll('table thead th');
+            if (headers.length) {
+                headers[headers.length - 1].textContent =
+                    lang === 'en' ? 'Manager' : 'หัวหน้างาน';
+            }
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(applyRoleLanguage, 0);
+    });
+
+    document.addEventListener('click', event => {
+        if (
+            event.target?.id === 'btn_lang_th' ||
+            event.target?.id === 'btn_lang_en'
+        ) {
+            setTimeout(applyRoleLanguage, 0);
+        }
+    });
+
+    window.applyRoleLanguage = applyRoleLanguage;
+})();
+</script>
+<!-- ROLE-LABEL-I18N-END -->
+</body>
+</html>

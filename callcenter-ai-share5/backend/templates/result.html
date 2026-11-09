@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result — OMAZZ CALLING</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #f0f2f8;
+            --surface: #ffffff;
+            --primary: #4158f6;
+            --primary-light: #eaecfe;
+            --text: #1a1d2e;
+            --text-2: #5c5f7a;
+            --text-3: #9194a8;
+            --border: #e4e6f0;
+            --green: #22c55e;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --sidebar-w: 220px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+        }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar { width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
+        .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 22px 20px 18px; border-bottom: 1px solid var(--border); }
+        .logo-icon { width: 36px; height: 36px; background: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px; letter-spacing: -0.5px; flex-shrink: 0; }
+        .logo-name { font-weight: 700; font-size: 15px; line-height: 1.1; }
+        .logo-sub { font-size: 11px; color: var(--text-3); font-weight: 400; }
+        .nav-links { list-style: none; padding: 12px 10px; flex: 1; }
+        .nav-links li a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; text-decoration: none; color: var(--text-2); font-size: 14px; font-weight: 500; transition: all 0.15s; }
+        .nav-links li a:hover { background: var(--bg); color: var(--text); }
+        .nav-links li a.active { background: var(--primary-light); color: var(--primary); }
+        .nav-icon { width: 18px; height: 18px; flex-shrink: 0; }
+        .nav-icon svg { width: 100%; height: 100%; }
+        .sidebar-footer { padding: 12px 10px; border-top: 1px solid var(--border); }
+        .logout-btn { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; text-decoration: none; color: var(--text-3); font-size: 14px; font-weight: 500; transition: all 0.15s; }
+        .logout-btn:hover { background: #fff0f0; color: var(--red); }
+
+        /* MAIN */
+        .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+        .topbar-title { font-size: 16px; font-weight: 600; }
+        .btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; transition: all 0.15s; text-decoration: none; }
+        .btn-outline { background: var(--surface); color: var(--text-2); border: 1px solid var(--border); }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+        .content { padding: 24px 28px; flex: 1; max-width: 880px; }
+        .page-header { margin-bottom: 22px; }
+        .page-header h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+        .page-header p { font-size: 13px; color: var(--text-3); margin-top: 3px; }
+
+        /* CARDS */
+        .section-card { background: var(--surface); border-radius: 12px; padding: 22px 24px; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 16px; }
+        .section-card-title { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        .transcript-text { font-size: 14px; color: var(--text-2); line-height: 1.7; }
+        .summary-text { font-size: 14px; color: var(--text); line-height: 1.7; }
+
+        /* CHAT */
+        .chat-box { display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px 14px; border-radius: 10px; font-size: 13px; max-width: 80%; line-height: 1.5; }
+        .agent { background: var(--primary-light); color: #2d3bcc; align-self: flex-start; border-top-left-radius: 3px; }
+        .customer { background: var(--bg); color: var(--text); align-self: flex-end; border-top-right-radius: 3px; border: 1px solid var(--border); }
+        .msg-speaker { font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px; opacity: 0.7; }
+        .sentiment-tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 100px; margin-top: 5px; }
+        .sentiment-positive { background: #dcfce7; color: #15803d; }
+        .sentiment-neutral { background: #fef9c3; color: #854d0e; }
+        .sentiment-negative { background: #fee2e2; color: #b91c1c; }
+    </style>
+
+<style id="omazz-three-theme">
+:root{
+  --bg:#07111f !important;
+  --surface:rgba(9,20,38,.76) !important;
+  --primary:#75aaff !important;
+  --primary-light:rgba(117,170,255,.12) !important;
+  --primary-dim:rgba(117,170,255,.12) !important;
+  --text:#edf3ff !important;
+  --text-2:#a1b5d7 !important;
+  --text-3:#6f86ab !important;
+  --border:rgba(154,179,220,.18) !important;
+  --green:#38d39f !important;
+  --red:#ff7488 !important;
+  --amber:#ffbd59 !important;
+  --shadow:0 22px 60px rgba(0,0,0,.28) !important;
+}
+html,body{min-height:100%;}
+body{
+  font-family:'Inter','Sora','DM Sans',system-ui,sans-serif !important;
+  background:
+    radial-gradient(circle at top left,rgba(83,114,255,.18),transparent 25%),
+    radial-gradient(circle at bottom right,rgba(111,70,255,.14),transparent 22%),
+    #07111f !important;
+  color:var(--text) !important;
+  position:relative;
+}
+#scene-bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.8;}
+.three-noise{position:fixed;inset:0;z-index:1;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,.05) .8px,transparent .8px);background-size:24px 24px;opacity:.10;}
+.sidebar,.main,.modal-overlay,.modal,.content,.topbar{position:relative;z-index:2;}
+.sidebar{
+  background:rgba(6,16,31,.76) !important;
+  border-right:1px solid var(--border) !important;
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+}
+.sidebar-logo,.sidebar-footer,.topbar{border-color:var(--border) !important;}
+.logo-icon{
+  background:linear-gradient(135deg,#75aaff,#8c7cff) !important;
+  color:#fff !important;border-radius:14px !important;
+  box-shadow:0 14px 28px rgba(69,105,255,.25) !important;
+}
+.logo-name,.topbar-title,.page-header h2,.page-header h1{color:var(--text) !important;}
+.logo-sub,.sidebar-profile-sub,.page-header p,.chart-card-title,.breadcrumb,.breadcrumb a{color:var(--text-3) !important;}
+.sidebar-profile{
+  background:linear-gradient(180deg,rgba(15,30,52,.88),rgba(9,20,38,.78)) !important;
+  border:1px solid var(--border) !important;border-radius:18px !important;
+  box-shadow:0 16px 34px rgba(0,0,0,.15) !important;
+}
+.sidebar-profile-name{color:var(--text) !important;}
+.sidebar-profile-role,.user-pill-name,.user-pill-role{color:var(--primary) !important;}
+.nav-links li a{color:var(--text-2) !important;border:1px solid transparent !important;border-radius:14px !important;}
+.nav-links li a:hover,.nav-links li a.active{
+  color:var(--text) !important;background:rgba(117,170,255,.12) !important;border-color:rgba(117,170,255,.18) !important;
+}
+.logout-btn{color:var(--text-3) !important;}
+.logout-btn:hover{background:rgba(255,116,136,.08) !important;color:var(--red) !important;}
+.topbar{
+  background:rgba(7,17,31,.58) !important;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border) !important;
+}
+.btn,.btn-outline,.btn-sm,.btn-restore{
+  border-radius:12px !important;font-weight:700 !important;
+}
+.btn-outline{background:rgba(255,255,255,.03) !important;color:var(--text-2) !important;border:1px solid var(--border) !important;}
+.btn-outline:hover{background:rgba(117,170,255,.08) !important;color:var(--text) !important;border-color:rgba(117,170,255,.28) !important;}
+.btn-primary{background:linear-gradient(135deg,#75aaff,#8c7cff) !important;color:#fff !important;box-shadow:0 14px 30px rgba(69,105,255,.20) !important;}
+.btn-danger{background:rgba(255,116,136,.10) !important;color:var(--red) !important;}
+.btn-restore{background:rgba(56,211,159,.10) !important;color:var(--green) !important;border-color:rgba(56,211,159,.22) !important;}
+.form-card,.table-card,.section-card,.card,.chart-card,.stat-card,.agent-breakdown-card,.analytics-card,.panel,.modal-content,.detail-card{
+  background:linear-gradient(180deg,rgba(10,24,44,.84),rgba(9,20,38,.74)) !important;
+  border:1px solid var(--border) !important;border-radius:22px !important;
+  box-shadow:var(--shadow) !important;color:var(--text) !important;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.table-card-header,.section-card-title,.card-header{border-color:var(--border) !important;}
+table{color:var(--text) !important;}
+th{color:var(--text-3) !important;background:rgba(255,255,255,.025) !important;border-color:var(--border) !important;}
+td{color:var(--text-2) !important;border-color:rgba(154,179,220,.10) !important;}
+tbody tr:hover{background:rgba(117,170,255,.05) !important;}
+.search-input,input,textarea,select{
+  background:rgba(3,11,22,.56) !important;color:var(--text) !important;border-color:var(--border) !important;
+  border-radius:12px !important;
+}
+input::placeholder,textarea::placeholder{color:var(--text-3) !important;}
+input:focus,textarea:focus,select:focus,.search-input:focus{
+  border-color:rgba(117,170,255,.55) !important;outline:none !important;box-shadow:0 0 0 4px rgba(117,170,255,.10) !important;
+}
+option{background:#0b1728;color:var(--text);}
+.form-group label,.section-label,.card-title,.chart-card-title,.stat-label{color:var(--text-3) !important;}
+.section-label{border-color:var(--border) !important;}
+.check-item,.issue-chip,.info-box,.status-box,.filter-box,.summary-box{
+  background:rgba(255,255,255,.03) !important;border-color:rgba(255,255,255,.06) !important;color:var(--text-2) !important;
+}
+.modal-overlay{background:rgba(2,8,18,.78) !important;backdrop-filter:blur(8px);}
+.modal,.modal-content{background:#0b1728 !important;color:var(--text) !important;border-color:var(--border) !important;}
+.close,.modal-close{color:var(--text-2) !important;}
+.badge,.pill,.status-pill,.sentiment-tag{border-color:transparent !important;}
+.transcript-text,.summary-text{color:var(--text-2) !important;}
+.msg.agent,.agent{background:linear-gradient(135deg,rgba(117,170,255,.22),rgba(140,124,255,.18)) !important;color:var(--text) !important;border:1px solid rgba(117,170,255,.18) !important;}
+.msg.customer,.customer{background:rgba(255,255,255,.04) !important;color:var(--text) !important;border:1px solid var(--border) !important;}
+.sentiment-positive{background:rgba(56,211,159,.12) !important;color:var(--green) !important;}
+.sentiment-neutral{background:rgba(255,189,89,.12) !important;color:var(--amber) !important;}
+.sentiment-negative{background:rgba(255,116,136,.12) !important;color:var(--red) !important;}
+::-webkit-scrollbar{width:8px;height:8px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:rgba(117,170,255,.25);border-radius:999px;}::-webkit-scrollbar-thumb:hover{background:rgba(117,170,255,.42);}
+@media(max-width:900px){.sidebar{backdrop-filter:none}.main{min-width:0}.topbar{gap:12px;flex-wrap:wrap}}
+</style>
+
+<style id="readable-type">
+body { font-size: 17px; }
+button, input, textarea, select, .btn { font-size: 16px !important; }
+.nav-links li a, .logout-btn { font-size: 17px !important; }
+.page-header p, .transcript-text, .summary-text, .msg { font-size: 17px !important; }
+.section-card-title, .msg-speaker, .sentiment-tag { font-size: 13px !important; }
+</style>
+</head>
+<body>
+<canvas id="scene-bg"></canvas><div class="three-noise"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon" style="background: var(--primary); color: white;">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width: 20px; height: 20px;">
+                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+            </svg>
+        </div>
+        <div>
+            <div class="logo-name">OMAZZ CALLING</div>
+            <div class="logo-sub" data-i18n="sidebar_sub">Analytics Platform</div>
+        </div>
+    </div>
+    <ul class="nav-links">
+        <li><a href="/dashboard" class="active" data-page="dashboard">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+            <span data-i18n="nav_dashboard">หน้าหลัก</span>
+        </a></li>
+        <li><a href="/customers" data-page="customers">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+            <span data-i18n="nav_customers">ข้อมูลลูกค้า</span>
+        </a></li>
+        <li><a href="/add-customer" data-page="add_customer">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span>
+            <span data-i18n="nav_register">ลงทะเบียน</span>
+        </a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="/" class="logout-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span data-i18n="nav_signout">ออกจากระบบ</span>
+        </a>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+    <div class="topbar">
+        <div class="topbar-title" data-i18n="topbar_title">Analysis Result</div>
+        <a href="/dashboard" class="btn btn-outline">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            <span data-i18n="btn_back">Back to Dashboard</span>
+        </a>
+    </div>
+
+    <div class="content">
+        <div class="page-header">
+            <h2 data-i18n="page_title">Call Analysis Report</h2>
+            <p data-i18n="page_desc">Transcript, summary, and conversation breakdown</p>
+        </div>
+
+        <div class="section-card">
+            <div class="section-card-title" data-i18n="card_transcript">Transcript</div>
+            <p class="transcript-text">{{ text }}</p>
+        </div>
+
+        <div class="section-card">
+            <div class="section-card-title" data-i18n="card_summary">AI Summary</div>
+            <p class="summary-text">{{ summary }}</p>
+        </div>
+
+        <div class="section-card">
+            <div class="section-card-title" data-i18n="card_conversation">Conversation</div>
+            <div class="chat-box">
+                {% for c in conversation %}
+                    <div class="msg {{ 'agent' if c.speaker == 'Agent' else 'customer' }}">
+                        <span class="msg-speaker">{{ c.speaker }}</span>
+                        {{ c.text }}
+                        {% if c.sentiment == "positive" %}
+                            <div><span class="sentiment-tag sentiment-positive" data-i18n="sentiment_positive">Positive</span></div>
+                        {% elif c.sentiment == "neutral" %}
+                            <div><span class="sentiment-tag sentiment-neutral" data-i18n="sentiment_neutral">Neutral</span></div>
+                        {% elif c.sentiment == "negative" %}
+                            <div><span class="sentiment-tag sentiment-negative" data-i18n="sentiment_negative">Negative</span></div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const translations = {
+    th: {
+        sidebar_sub: "Analytics Platform",
+        nav_dashboard: "หน้าหลัก",
+        nav_customers: "ข้อมูลลูกค้า",
+        nav_register: "ลงทะเบียน",
+        nav_signout: "ออกจากระบบ",
+        topbar_title: "Analysis Result",
+        btn_back: "Back to Dashboard",
+        page_title: "Call Analysis Report",
+        page_desc: "Transcript, summary, and conversation breakdown",
+        card_transcript: "Transcript",
+        card_summary: "AI Summary",
+        card_conversation: "Conversation",
+        sentiment_positive: "Positive",
+        sentiment_neutral: "Neutral",
+        sentiment_negative: "Negative"
+    },
+    en: {
+        sidebar_sub: "Analytics Platform",
+        nav_dashboard: "Dashboard",
+        nav_customers: "Customers",
+        nav_register: "Register",
+        nav_signout: "Sign Out",
+        topbar_title: "Analysis Result",
+        btn_back: "Back to Dashboard",
+        page_title: "Call Analysis Report",
+        page_desc: "Transcript, summary, and conversation breakdown",
+        card_transcript: "Transcript",
+        card_summary: "AI Summary",
+        card_conversation: "Conversation",
+        sentiment_positive: "Positive",
+        sentiment_neutral: "Neutral",
+        sentiment_negative: "Negative"
+    }
+};
+
+let currentLang = localStorage.getItem('preferred_lang') || 'th';
+
+function switchLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('preferred_lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+            el.textContent = translations[lang][key];
+        }
+    });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    switchLanguage(currentLang);
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script id="omazz-three-bg">
+(function(){
+  if(!window.THREE||window.__omazzThreeStarted)return;
+  window.__omazzThreeStarted=true;
+  const canvas=document.getElementById('scene-bg');
+  if(!canvas)return;
+  try{
+    const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.7));
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    const scene=new THREE.Scene();
+    const camera=new THREE.PerspectiveCamera(55,window.innerWidth/window.innerHeight,.1,1000);
+    camera.position.z=70;
+    const count=1100, positions=new Float32Array(count*3);
+    for(let i=0;i<positions.length;i+=3){positions[i]=(Math.random()-.5)*190;positions[i+1]=(Math.random()-.5)*130;positions[i+2]=(Math.random()-.5)*120;}
+    const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));
+    const material=new THREE.PointsMaterial({color:0x82b4ff,size:.55,transparent:true,opacity:.72,blending:THREE.AdditiveBlending,depthWrite:false});
+    const particles=new THREE.Points(geometry,material);scene.add(particles);
+    const torus=new THREE.Mesh(new THREE.TorusGeometry(16,.14,16,150),new THREE.MeshBasicMaterial({color:0x8588ff,transparent:true,opacity:.14}));
+    torus.rotation.x=1.18;torus.position.set(24,-7,-30);scene.add(torus);
+    const torus2=torus.clone();torus2.scale.set(1.55,1.55,1.55);torus2.material=torus.material.clone();torus2.material.opacity=.07;torus2.position.z=-38;scene.add(torus2);
+    let mx=0,my=0;window.addEventListener('mousemove',e=>{mx=(e.clientX/window.innerWidth-.5)*2;my=(e.clientY/window.innerHeight-.5)*2;},{passive:true});
+    function animate(){requestAnimationFrame(animate);particles.rotation.y+=.0007;particles.rotation.x+=.0002;torus.rotation.z+=.0022;torus2.rotation.z-=.0014;camera.position.x+=((mx*2.5)-camera.position.x)*.025;camera.position.y+=((-my*1.5)-camera.position.y)*.025;camera.lookAt(scene.position);renderer.render(scene,camera);}animate();
+    window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);},{passive:true});
+  }catch(err){console.warn('Three.js background unavailable:',err);}
+})();
+</script>
+
+<!-- ROLE-LABEL-I18N-START -->
+<script>
+(function () {
+    function getLanguage() {
+        return localStorage.getItem('preferred_lang') === 'en' ? 'en' : 'th';
+    }
+
+    function getRoleLabel(role, lang) {
+        role = (role || 'staff').toLowerCase();
+
+        if (role === 'it') {
+            return lang === 'en' ? 'Manager' : 'หัวหน้างาน';
+        }
+
+        if (role === 'supervisor') {
+            return lang === 'en' ? 'Supervisor' : 'หัวหน้า';
+        }
+
+        return lang === 'en' ? 'Staff' : 'พนักงาน';
+    }
+
+    function applyRoleLanguage() {
+        const lang = getLanguage();
+        const role = localStorage.getItem('role') || 'staff';
+        const label = getRoleLabel(role, lang);
+
+        [
+            'sidebar_role',
+            'topbar_role',
+            'profile_role',
+            'top_role',
+            'profileRole'
+        ].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = label;
+        });
+
+        const topIdentity = document.getElementById('topIdentity');
+        if (topIdentity) {
+            const code = localStorage.getItem('agent_code') || '';
+            topIdentity.textContent = code ? `${code} · ${label}` : label;
+        }
+
+        document.querySelectorAll('select option[value="it"]').forEach(option => {
+            option.textContent = lang === 'en' ? 'Manager' : 'หัวหน้างาน';
+        });
+
+        if (location.pathname.includes('permission-matrix')) {
+            const headers = document.querySelectorAll('table thead th');
+            if (headers.length) {
+                headers[headers.length - 1].textContent =
+                    lang === 'en' ? 'Manager' : 'หัวหน้างาน';
+            }
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(applyRoleLanguage, 0);
+    });
+
+    document.addEventListener('click', event => {
+        if (
+            event.target?.id === 'btn_lang_th' ||
+            event.target?.id === 'btn_lang_en'
+        ) {
+            setTimeout(applyRoleLanguage, 0);
+        }
+    });
+
+    window.applyRoleLanguage = applyRoleLanguage;
+})();
+</script>
+<!-- ROLE-LABEL-I18N-END -->
+</body>
+</html>

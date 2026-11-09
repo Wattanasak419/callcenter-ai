@@ -1,0 +1,76 @@
+{
+  "permissions": [
+    {
+      "key": "view_dashboard",
+      "category": "ระบบงานหลัก",
+      "label": "เข้าถึงแดชบอร์ด (Dashboard)",
+      "staff": true,
+      "supervisor": true,
+      "it": true
+    },
+    {
+      "key": "view_customers",
+      "category": "ระบบงานหลัก",
+      "label": "ดูข้อมูลลูกค้า (Customers)",
+      "staff": true,
+      "supervisor": true,
+      "it": true
+    },
+    {
+      "key": "register_customer",
+      "category": "ระบบงานหลัก",
+      "label": "ลงทะเบียนลูกค้าใหม่ (Register)",
+      "staff": true,
+      "supervisor": true,
+      "it": true
+    },
+    {
+      "key": "upload_audio",
+      "category": "ระบบงานหลัก",
+      "label": "อัปโหลดและประมวลผลเสียง (Upload)",
+      "staff": true,
+      "supervisor": true,
+      "it": true
+    },
+    {
+      "key": "transfer_cases",
+      "category": "การจัดการเคส",
+      "label": "ส่งต่อเคสสนทนา (Transfer Case)",
+      "staff": true,
+      "supervisor": true,
+      "it": true
+    },
+    {
+      "key": "manage_record_status",
+      "category": "การจัดการเคส",
+      "label": "เปิด/ปิดสถานะเคส (Enable/Disable)",
+      "staff": true,
+      "supervisor": true,
+      "it": true
+    },
+    {
+      "key": "view_agents",
+      "category": "ผู้ดูแลระบบ",
+      "label": "ดูรายชื่อพนักงาน (Employees)",
+      "staff": false,
+      "supervisor": true,
+      "it": true
+    },
+    {
+      "key": "manage_agents",
+      "category": "ผู้ดูแลระบบ",
+      "label": "จัดการข้อมูลพนักงาน (Add/Edit Agents)",
+      "staff": true,
+      "supervisor": false,
+      "it": true
+    },
+    {
+      "key": "view_permissions",
+      "category": "ผู้ดูแลระบบ",
+      "label": "จัดการสิทธิ์และตั้งค่า (Matrix & Settings)",
+      "staff": true,
+      "supervisor": false,
+      "it": true
+    }
+  ]
+}

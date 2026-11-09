@@ -1,0 +1,33 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment / secrets
+.env
+.env.*
+*.key
+
+# Uploaded audio / user data
+backend/uploads/
+
+# Local AI models
+models/
+backend/models/
+
+# Logs
+*.log
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+
+# Local database
+*.db

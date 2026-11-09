@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result — OMAZZ CALLING</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #f0f2f8;
+            --surface: #ffffff;
+            --primary: #4158f6;
+            --primary-light: #eaecfe;
+            --text: #1a1d2e;
+            --text-2: #5c5f7a;
+            --text-3: #9194a8;
+            --border: #e4e6f0;
+            --green: #22c55e;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --sidebar-w: 220px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+        }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar { width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
+        .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 22px 20px 18px; border-bottom: 1px solid var(--border); }
+        .logo-icon { width: 36px; height: 36px; background: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px; letter-spacing: -0.5px; flex-shrink: 0; }
+        .logo-name { font-weight: 700; font-size: 15px; line-height: 1.1; }
+        .logo-sub { font-size: 11px; color: var(--text-3); font-weight: 400; }
+        .nav-links { list-style: none; padding: 12px 10px; flex: 1; }
+        .nav-links li a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; text-decoration: none; color: var(--text-2); font-size: 14px; font-weight: 500; transition: all 0.15s; }
+        .nav-links li a:hover { background: var(--bg); color: var(--text); }
+        .nav-links li a.active { background: var(--primary-light); color: var(--primary); }
+        .nav-icon { width: 18px; height: 18px; flex-shrink: 0; }
+        .nav-icon svg { width: 100%; height: 100%; }
+        .sidebar-footer { padding: 12px 10px; border-top: 1px solid var(--border); }
+        .logout-btn { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; text-decoration: none; color: var(--text-3); font-size: 14px; font-weight: 500; transition: all 0.15s; }
+        .logout-btn:hover { background: #fff0f0; color: var(--red); }
+
+        /* MAIN */
+        .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+        .topbar-title { font-size: 16px; font-weight: 600; }
+        .btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; transition: all 0.15s; text-decoration: none; }
+        .btn-outline { background: var(--surface); color: var(--text-2); border: 1px solid var(--border); }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+        .content { padding: 24px 28px; flex: 1; max-width: 880px; }
+        .page-header { margin-bottom: 22px; }
+        .page-header h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+        .page-header p { font-size: 13px; color: var(--text-3); margin-top: 3px; }
+
+        /* CARDS */
+        .section-card { background: var(--surface); border-radius: 12px; padding: 22px 24px; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 16px; }
+        .section-card-title { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        .transcript-text { font-size: 14px; color: var(--text-2); line-height: 1.7; }
+        .summary-text { font-size: 14px; color: var(--text); line-height: 1.7; }
+
+        /* CHAT */
+        .chat-box { display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px 14px; border-radius: 10px; font-size: 13px; max-width: 80%; line-height: 1.5; }
+        .agent { background: var(--primary-light); color: #2d3bcc; align-self: flex-start; border-top-left-radius: 3px; }
+        .customer { background: var(--bg); color: var(--text); align-self: flex-end; border-top-right-radius: 3px; border: 1px solid var(--border); }
+        .msg-speaker { font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px; opacity: 0.7; }
+        .sentiment-tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 100px; margin-top: 5px; }
+        .sentiment-positive { background: #dcfce7; color: #15803d; }
+        .sentiment-neutral { background: #fef9c3; color: #854d0e; }
+        .sentiment-negative { background: #fee2e2; color: #b91c1c; }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon" style="background: var(--primary); color: white;">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width: 20px; height: 20px;">
+                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+            </svg>
+        </div>
+        <div>
+            <div class="logo-name">OMAZZ CALLING</div>
+            <div class="logo-sub">Analytics Platform</div>
+        </div>
+    </div>
+    <ul class="nav-links">
+        <li><a href="/dashboard" class="active" data-page="dashboard">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+            Dashboard
+        </a></li>
+        <li><a href="/customers" data-page="customers">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+            Customers
+        </a></li>
+        <li><a href="/add-customer" data-page="add_customer">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span>
+            Register
+        </a></li>
+        <li><a href="/graph-report" data-page="graph">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+            Analytics
+        </a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="/" class="logout-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign Out
+        </a>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+    <div class="topbar">
+        <div class="topbar-title">Analysis Result</div>
+        <a href="/dashboard" class="btn btn-outline">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="content">
+        <div class="page-header">
+            <h2>Call Analysis Report</h2>
+            <p>Transcript, summary, and conversation breakdown</p>
+        </div>
+
+        <div class="section-card">
+            <div class="section-card-title">Transcript</div>
+            <p class="transcript-text">{{ text }}</p>
+        </div>
+
+        <div class="section-card">
+            <div class="section-card-title">AI Summary</div>
+            <p class="summary-text">{{ summary }}</p>
+        </div>
+
+        <div class="section-card">
+            <div class="section-card-title">Conversation</div>
+            <div class="chat-box">
+                {% for c in conversation %}
+                    <div class="msg {{ 'agent' if c.speaker == 'Agent' else 'customer' }}">
+                        <span class="msg-speaker">{{ c.speaker }}</span>
+                        {{ c.text }}
+                        {% if c.sentiment == "positive" %}
+                            <div><span class="sentiment-tag sentiment-positive">Positive</span></div>
+                        {% elif c.sentiment == "neutral" %}
+                            <div><span class="sentiment-tag sentiment-neutral">Neutral</span></div>
+                        {% elif c.sentiment == "negative" %}
+                            <div><span class="sentiment-tag sentiment-negative">Negative</span></div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ใบรับประกัน — {{ record.firstname or 'Customer' }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07111f;--panel:rgba(9,20,38,.9);--text:#f1f6ff;--muted:#b7c8e2;--sub:#8097bc;--line:rgba(164,190,231,.22);--blue:#8ab4f8;--purple:#a19aff;--green:#3edf9b;--amber:#ffc973;--red:#ff8598}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 0 0,rgba(83,114,255,.18),transparent 27%),radial-gradient(circle at 100% 100%,rgba(111,70,255,.13),transparent 25%),var(--bg);color:var(--text);font-family:'Noto Sans Thai','Inter',sans-serif;font-size:17px}.toolbar{max-width:980px;margin:28px auto 0;padding:0 24px;display:flex;justify-content:space-between;gap:12px;align-items:center}.toolbar a,.toolbar button{border:1px solid var(--line);border-radius:12px;padding:11px 16px;background:rgba(255,255,255,.04);color:var(--text);font:700 15px inherit;text-decoration:none;cursor:pointer}.toolbar button{border:0;background:linear-gradient(135deg,var(--blue),var(--purple));color:#07111f}.sheet{max-width:980px;margin:18px auto 40px;padding:48px 54px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,rgba(10,24,44,.93),rgba(8,18,34,.86));box-shadow:0 24px 65px rgba(0,0,0,.32)}.header{display:flex;justify-content:space-between;gap:24px;padding-bottom:25px;border-bottom:1px solid var(--line)}.brand{font:800 13px Inter,sans-serif;letter-spacing:.16em;color:var(--blue)}h1{font-size:34px;margin:7px 0 5px}.lead{color:var(--muted);margin:0;line-height:1.7}.ref{text-align:right;color:var(--sub);font-size:14px}.ref strong{display:block;color:var(--blue);font:800 19px Inter,sans-serif;margin-top:3px}.status{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;font-size:14px;font-weight:800;margin-top:10px}.status.active{color:var(--green);background:rgba(62,223,155,.12);border:1px solid rgba(62,223,155,.22)}.status.expired{color:var(--red);background:rgba(255,133,152,.12);border:1px solid rgba(255,133,152,.22)}.status.unknown{color:var(--amber);background:rgba(255,201,115,.12);border:1px solid rgba(255,201,115,.22)}.section-title{font-size:19px;margin:30px 0 8px}.grid{display:grid;grid-template-columns:1fr 1fr;column-gap:36px}.field{padding:16px 0;border-bottom:1px solid var(--line)}.label{color:var(--sub);font-size:13px;font-weight:800;margin-bottom:6px}.value{font-size:17px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}.terms{margin-top:28px;padding:20px 22px;border-radius:15px;border:1px solid rgba(62,223,155,.2);border-left:4px solid var(--green);background:rgba(62,223,155,.07)}.terms h2{font-size:17px;margin:0 0 8px}.terms p{margin:0;color:var(--muted);font-size:16px;line-height:1.75}.footer{display:flex;justify-content:space-between;gap:20px;margin-top:34px;padding-top:18px;border-top:1px solid var(--line);color:var(--sub);font-size:13px}.disabled-note{margin:20px 0 0;padding:12px 15px;border-radius:12px;background:rgba(255,201,115,.09);border:1px solid rgba(255,201,115,.22);color:var(--amber);font-size:14px}@media(max-width:700px){.sheet{margin:16px 12px 30px;padding:30px 22px}.toolbar{padding:0 12px}.header,.footer{flex-direction:column}.ref{text-align:left}.grid{grid-template-columns:1fr}h1{font-size:29px}}@media print{body{background:#fff;color:#162235}.toolbar{display:none}.sheet{margin:0;max-width:none;border:0;border-radius:0;box-shadow:none;background:#fff;padding:35px}.lead,.terms p,.footer,.ref{color:#53657d}.field,.header,.footer{border-color:#dce4ef}.brand,.ref strong{color:#285ea8}.terms{background:#f4fbf8;border-color:#b8dfd0}.status.active{color:#087a55}.status.expired{color:#a73346}.status.unknown{color:#8a6500}}
+</style>
+</head>
+<body>
+<div class="toolbar"><a href="/customers">← กลับไปข้อมูลลูกค้า</a><button type="button" onclick="window.print()">พิมพ์ / บันทึก PDF</button></div>
+<main class="sheet">
+  <header class="header">
+    <div><div class="brand">OMAZZ CALLING · WARRANTY</div><h1>ใบรับประกันสินค้า</h1><p class="lead">ข้อมูลนี้อ้างอิงจากระเบียนลูกค้าและเคสในระบบ Call Center AI</p></div>
+    <div class="ref">เลขอ้างอิง<strong>{{ record.warranty_number or ('WR-' ~ '%06d'|format(record.id)) }}</strong>
+      {% set ws = record.warranty_status or 'unknown' %}
+      <span class="status {{ ws }}">{% if ws == 'active' %}● อยู่ในประกัน{% elif ws == 'expired' %}● หมดประกัน{% else %}● ยังระบุสถานะไม่ได้{% endif %}</span>
+    </div>
+  </header>
+  {% if not record.is_active %}<div class="disabled-note">เคสนี้ถูกปิดใช้งาน แต่ข้อมูลยังคงถูกเก็บไว้เป็นประวัติและไม่ได้ถูกลบออกจากระบบ</div>{% endif %}
+  <h2 class="section-title">ข้อมูลลูกค้าและสินค้า</h2>
+  <section class="grid">
+    <div class="field"><div class="label">ชื่อลูกค้า</div><div class="value">{{ record.firstname or '-' }} {{ record.lastname or '' }}</div></div>
+    <div class="field"><div class="label">เบอร์โทรศัพท์</div><div class="value">{{ record.customer_phone or '-' }}</div></div>
+    <div class="field"><div class="label">แบรนด์</div><div class="value">{{ record.brand or '-' }}</div></div>
+    <div class="field"><div class="label">สินค้า / รุ่น</div><div class="value">{{ record.product_name or '-' }}</div></div>
+    <div class="field"><div class="label">Serial Number</div><div class="value">{{ record.serial_number or '-' }}</div></div>
+    <div class="field"><div class="label">วันที่ซื้อ</div><div class="value">{{ record.purchase_date or '-' }}</div></div>
+    <div class="field"><div class="label">ระยะเวลารับประกัน</div><div class="value">{{ record.warranty_duration or '-' }}</div></div>
+    <div class="field"><div class="label">วันเริ่มความคุ้มครอง</div><div class="value">{{ record.start_date or record.purchase_date or '-' }}</div></div>
+    <div class="field"><div class="label">วันสิ้นสุดความคุ้มครอง</div><div class="value">{{ record.warranty_end_date or record.end_date or '-' }}</div></div>
+    <div class="field"><div class="label">เลขเคส</div><div class="value">#{{ record.id }} · {{ record.filename or '-' }}</div></div>
+    <div class="field"><div class="label">ผู้รับผิดชอบเคส</div><div class="value">{{ record.assigned_agent_code or record.agent_code or '-' }}</div></div>
+    <div class="field"><div class="label">จำนวนครั้งที่ติดต่อ</div><div class="value">{{ record.call_count or 0 }}</div></div>
+  </section>
+  <section class="terms"><h2>เงื่อนไขและหมายเหตุการรับประกัน</h2><p>{{ record.warranty_terms or record.action_taken or record.summary or 'ไม่มีรายละเอียดเพิ่มเติมในระบบ' }}</p></section>
+  <footer class="footer"><span>สร้างจากเคส #{{ record.id }}</span><span>บันทึกเมื่อ {{ record.created_at[:10] if record.created_at else '-' }}</span></footer>
+</main>
+<!-- ROLE-LABEL-I18N-START -->
+<script>
+(function () {
+    function getLanguage() {
+        return localStorage.getItem('preferred_lang') === 'en' ? 'en' : 'th';
+    }
+
+    function getRoleLabel(role, lang) {
+        role = (role || 'staff').toLowerCase();
+
+        if (role === 'it') {
+            return lang === 'en' ? 'Manager' : 'หัวหน้างาน';
+        }
+
+        if (role === 'supervisor') {
+            return lang === 'en' ? 'Supervisor' : 'หัวหน้า';
+        }
+
+        return lang === 'en' ? 'Staff' : 'พนักงาน';
+    }
+
+    function applyRoleLanguage() {
+        const lang = getLanguage();
+        const role = localStorage.getItem('role') || 'staff';
+        const label = getRoleLabel(role, lang);
+
+        [
+            'sidebar_role',
+            'topbar_role',
+            'profile_role',
+            'top_role',
+            'profileRole'
+        ].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = label;
+        });
+
+        const topIdentity = document.getElementById('topIdentity');
+        if (topIdentity) {
+            const code = localStorage.getItem('agent_code') || '';
+            topIdentity.textContent = code ? `${code} · ${label}` : label;
+        }
+
+        document.querySelectorAll('select option[value="it"]').forEach(option => {
+            option.textContent = lang === 'en' ? 'Manager' : 'หัวหน้างาน';
+        });
+
+        if (location.pathname.includes('permission-matrix')) {
+            const headers = document.querySelectorAll('table thead th');
+            if (headers.length) {
+                headers[headers.length - 1].textContent =
+                    lang === 'en' ? 'Manager' : 'หัวหน้างาน';
+            }
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(applyRoleLanguage, 0);
+    });
+
+    document.addEventListener('click', event => {
+        if (
+            event.target?.id === 'btn_lang_th' ||
+            event.target?.id === 'btn_lang_en'
+        ) {
+            setTimeout(applyRoleLanguage, 0);
+        }
+    });
+
+    window.applyRoleLanguage = applyRoleLanguage;
+})();
+</script>
+<!-- ROLE-LABEL-I18N-END -->
+</body>
+</html>

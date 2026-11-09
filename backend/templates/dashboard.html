@@ -1,0 +1,2379 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — OMAZZ CALLING</title>
+    
+    <!-- Google Fonts: Inter & Sarabun & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* -------------------------------------------------------------
+            CSS VARIABLES & BASE RESET
+        ------------------------------------------------------------- */
+        *, *::before, *::after { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        :root {
+            --bg: #07111f;
+            --bg-soft: rgba(10, 20, 36, 0.82);
+            --panel: rgba(9, 20, 38, 0.88);
+            --panel-strong: rgba(12, 28, 50, 0.94);
+            --primary: #8ab4f8;
+            --primary-2: #a19aff;
+            --text: #ffffff;
+            --text-2: #c5d4ed;
+            --text-3: #8fa6cb;
+            --border: rgba(170, 198, 240, 0.22);
+            --green: #3edf9b;
+            --red: #ff8598;
+            --amber: #ffc973;
+            --urgent-glow: #ff4757;
+            --discord: #5865F2;
+            --sidebar-w: 265px;
+            --shadow: 0 22px 60px rgba(0, 0, 0, 0.35);
+        }
+
+        html, body { 
+            min-height: 100%; 
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: radial-gradient(circle at top left, rgba(83, 114, 255, 0.18), transparent 24%),
+                        radial-gradient(circle at bottom right, rgba(111, 70, 255, 0.15), transparent 22%),
+                        var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #scene-bg { 
+            position: fixed; 
+            inset: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 0; 
+            opacity: 0.86; 
+            pointer-events: none; 
+        }
+
+        .noise { 
+            position: fixed; 
+            inset: 0; 
+            z-index: 1; 
+            pointer-events: none; 
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 0.8px, transparent 0.8px); 
+            background-size: 24px 24px; 
+            opacity: 0.12; 
+        }
+
+        /* -------------------------------------------------------------
+            SIDEBAR COMPONENT
+        ------------------------------------------------------------- */
+        .sidebar { 
+            width: var(--sidebar-w) !important; 
+            flex: 0 0 var(--sidebar-w) !important; 
+            background: rgba(6, 16, 31, 0.92); 
+            border-right: 1px solid var(--border); 
+            backdrop-filter: blur(24px); 
+            -webkit-backdrop-filter: blur(24px); 
+            display: flex; 
+            flex-direction: column; 
+            position: fixed !important; 
+            top: 0 !important; 
+            left: 0 !important; 
+            height: 100vh !important; 
+            z-index: 10; 
+            overflow-y: auto; 
+            box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.03); 
+        }
+
+        .sidebar-logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 14px; 
+            padding: 24px 20px 18px; 
+            border-bottom: 1px solid var(--border); 
+        }
+
+        .logo-icon { 
+            width: 42px; 
+            height: 42px; 
+            border-radius: 14px; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-2)); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            box-shadow: 0 16px 28px rgba(69, 105, 255, 0.28); 
+            color: white; 
+            flex-shrink: 0; 
+        }
+
+        .logo-name { 
+            font-family: 'Inter', sans-serif;
+            font-weight: 800; 
+            font-size: 16px; 
+            letter-spacing: -0.02em; 
+            color: #ffffff; 
+        }
+
+        .logo-sub { 
+            font-size: 12px; 
+            color: var(--text-2); 
+            margin-top: 3px; 
+            font-weight: 500; 
+        }
+
+        .sidebar-profile { 
+            margin: 16px 14px 8px; 
+            border-radius: 18px; 
+            padding: 16px; 
+            background: linear-gradient(180deg, rgba(15, 30, 52, 0.95), rgba(9, 20, 38, 0.88)); 
+            border: 1px solid var(--border); 
+            box-shadow: 0 18px 32px rgba(0, 0, 0, 0.2); 
+        }
+
+        .sidebar-profile-name { 
+            font-weight: 600; 
+            font-size: 15px; 
+            margin-bottom: 4px; 
+            color: #ffffff; 
+        }
+
+        .sidebar-profile-sub { 
+            font-size: 13px; 
+            color: var(--text-2); 
+            margin-bottom: 6px; 
+            font-weight: 500; 
+        }
+
+        .sidebar-profile-role { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 11px; 
+            font-weight: 700; 
+            color: var(--primary); 
+            letter-spacing: 0.08em; 
+            text-transform: uppercase; 
+        }
+
+        .sidebar-profile-role::before { 
+            content: ''; 
+            width: 7px; 
+            height: 7px; 
+            border-radius: 50%; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-2)); 
+            box-shadow: 0 0 12px rgba(138, 180, 248, 0.9); 
+        }
+
+        .nav-links { 
+            list-style: none; 
+            padding: 12px; 
+            flex: 1; 
+        }
+
+        .nav-links li { 
+            height: 46px !important; 
+            margin-bottom: 6px !important; 
+        }
+
+        .nav-links a { 
+            width: 100% !important; 
+            height: 46px !important; 
+            min-height: 46px !important; 
+            display: flex; 
+            align-items: center; 
+            gap: 14px; 
+            padding: 10px 16px; 
+            border-radius: 12px; 
+            color: var(--text-2); 
+            text-decoration: none; 
+            font-size: 14.5px; 
+            font-weight: 500; 
+            letter-spacing: 0.01em;
+            transition: all .18s ease; 
+            border: 1px solid transparent; 
+            box-sizing: border-box !important; 
+            white-space: nowrap; 
+        }
+
+        .nav-links a:hover { 
+            color: #ffffff; 
+            background: rgba(138, 180, 248, 0.12); 
+            border-color: rgba(138, 180, 248, 0.25); 
+        }
+
+        .nav-links a.active { 
+            color: #ffffff; 
+            font-weight: 600;
+            background: rgba(138, 180, 248, 0.18); 
+            border-color: rgba(138, 180, 248, 0.35); 
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 20px rgba(0, 0, 0, 0.2); 
+        }
+
+        .nav-links a.nav-urgent {
+            color: #ffaa5b;
+            font-weight: 600;
+        }
+        .nav-links a.nav-urgent:hover {
+            color: #ff6b7b;
+            background: rgba(255, 71, 87, 0.12);
+            border-color: rgba(255, 71, 87, 0.3);
+            box-shadow: 0 0 16px rgba(255, 71, 87, 0.15);
+        }
+
+        .nav-icon { 
+            width: 20px; 
+            height: 20px; 
+            flex-shrink: 0; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-icon svg { 
+            width: 100%; 
+            height: 100%; 
+        }
+
+        .sidebar-footer { 
+            padding: 14px 12px; 
+            border-top: 1px solid var(--border); 
+        }
+
+        .logout-btn { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            color: var(--text-3); 
+            text-decoration: none; 
+            font-size: 14px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all .18s ease; 
+        }
+
+        .logout-btn:hover { 
+            color: var(--red); 
+            background: rgba(255, 133, 152, 0.12); 
+        }
+
+        /* -------------------------------------------------------------
+            MAIN CONTENT & TOPBAR
+        ------------------------------------------------------------- */
+        .main { 
+            position: relative; 
+            z-index: 2; 
+            width: calc(100% - var(--sidebar-w)) !important; 
+            margin-left: var(--sidebar-w) !important; 
+            min-width: 0 !important; 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+        }
+
+        .topbar { 
+            position: sticky; 
+            top: 0; 
+            z-index: 5; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 20px; 
+            padding: 16px 28px; 
+            background: rgba(7, 17, 31, 0.78); 
+            backdrop-filter: blur(20px); 
+            border-bottom: 1px solid var(--border); 
+        }
+
+        .topbar-title { 
+            font-size: 15px; 
+            font-weight: 700; 
+            color: var(--text-2); 
+            letter-spacing: 0.06em; 
+            text-transform: uppercase; 
+        }
+
+        .topbar-right { 
+            display: flex; 
+            align-items: center; 
+            gap: 18px; 
+        }
+
+        .user-pill { 
+            text-align: right; 
+        }
+
+        .user-pill-name { 
+            font-size: 14px; 
+            font-weight: 700; 
+            color: #ffffff; 
+        }
+
+        .user-pill-role { 
+            font-size: 11px; 
+            font-weight: 700; 
+            color: var(--primary); 
+            letter-spacing: 0.1em; 
+            text-transform: uppercase; 
+            margin-top: 2px; 
+        }
+
+        .lang-switch { 
+            display: flex; 
+            background: rgba(255, 255, 255, 0.08); 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            padding: 2px; 
+            gap: 2px; 
+        }
+
+        .lang-btn { 
+            background: transparent; 
+            border: none; 
+            color: var(--text-2); 
+            font-size: 12px; 
+            font-weight: 700; 
+            padding: 5px 10px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            font-family: 'Inter', sans-serif; 
+        }
+
+        .lang-btn.active { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-2)); 
+            color: #07111f; 
+            box-shadow: 0 4px 12px rgba(138, 180, 248, 0.35); 
+        }
+
+        .content { 
+            padding: 28px; 
+        }
+
+        /* -------------------------------------------------------------
+            TIME FILTER PANEL
+        ------------------------------------------------------------- */
+        .time-filter-panel { 
+            background: linear-gradient(180deg, rgba(12, 28, 50, 0.92), rgba(9, 20, 38, 0.84)); 
+            border: 1px solid var(--border); 
+            border-radius: 20px; 
+            padding: 18px 24px; 
+            margin-bottom: 18px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 14px; 
+            box-shadow: var(--shadow); 
+        }
+
+        .filter-row { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            flex-wrap: wrap; 
+        }
+
+        .filter-label { 
+            font-size: 13px; 
+            font-weight: 700; 
+            color: var(--primary); 
+            text-transform: uppercase; 
+            letter-spacing: 0.06em; 
+            min-width: 90px; 
+        }
+
+        .btn-group { 
+            display: flex; 
+            gap: 6px; 
+            flex-wrap: wrap; 
+        }
+
+        .slice-btn { 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid var(--border); 
+            color: var(--text-2); 
+            font-size: 12.5px; 
+            font-weight: 500; 
+            padding: 6px 14px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            transition: all 0.15s ease; 
+        }
+
+        .slice-btn:hover { 
+            background: rgba(138, 180, 248, 0.15); 
+            color: #fff; 
+            border-color: var(--primary); 
+        }
+
+        .slice-btn.active { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-2)); 
+            color: #07111f; 
+            font-weight: 700; 
+            border-color: transparent; 
+            box-shadow: 0 4px 12px rgba(138, 180, 248, 0.35); 
+        }
+
+        /* -------------------------------------------------------------
+            HERO & STATS CARDS
+        ------------------------------------------------------------- */
+        .hero-row { 
+            display: grid; 
+            grid-template-columns: 1.15fr .85fr; 
+            gap: 18px; 
+            margin-bottom: 18px; 
+        }
+
+        .hero-panel, .mini-panel, .card, .stat-card, .agent-breakdown-card { 
+            background: linear-gradient(180deg, rgba(12, 28, 50, 0.92), rgba(9, 20, 38, 0.84)); 
+            border: 1px solid var(--border); 
+            border-radius: 22px; 
+            box-shadow: var(--shadow); 
+            backdrop-filter: blur(18px); 
+        }
+
+        .hero-panel { 
+            padding: 26px 28px; 
+            min-height: 220px; 
+            position: relative; 
+            overflow: hidden; 
+        }
+
+        .hero-panel::before { 
+            content: ''; 
+            position: absolute; 
+            width: 320px; 
+            height: 320px; 
+            right: -90px; 
+            top: -90px; 
+            border-radius: 50%; 
+            background: radial-gradient(circle, rgba(138, 180, 248, 0.22), transparent 65%); 
+            pointer-events: none; 
+        }
+
+        .eyebrow { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 9px; 
+            padding: 8px 14px; 
+            border-radius: 999px; 
+            background: rgba(255, 255, 255, 0.07); 
+            border: 1px solid var(--border); 
+            color: var(--text); 
+            font-size: 11.5px; 
+            font-weight: 700; 
+            letter-spacing: 0.12em; 
+            text-transform: uppercase; 
+            margin-bottom: 16px; 
+        }
+
+        .eyebrow .dot { 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-2)); 
+            box-shadow: 0 0 14px rgba(138, 180, 248, 0.9); 
+        }
+
+        .page-header h2 { 
+            font-size: clamp(2rem, 3vw, 2.8rem); 
+            font-weight: 700; 
+            letter-spacing: -0.02em; 
+            line-height: 1.15; 
+            margin-bottom: 10px; 
+            color: #ffffff; 
+        }
+
+        .page-header p { 
+            color: var(--text-2); 
+            font-size: 15px; 
+            font-weight: 400; 
+            line-height: 1.7; 
+            max-width: 60ch; 
+        }
+
+        .hero-metrics { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 12px; 
+            margin-top: 22px; 
+        }
+
+        .metric-chip { 
+            padding: 14px 18px; 
+            border-radius: 16px; 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+
+        .metric-chip-label { 
+            font-size: 11.5px; 
+            font-weight: 600; 
+            color: var(--text-3); 
+            text-transform: uppercase; 
+            letter-spacing: 0.08em; 
+            margin-bottom: 6px; 
+        }
+
+        .metric-chip-value { 
+            font-family: 'JetBrains Mono', monospace; 
+            font-size: 24px; 
+            font-weight: 700; 
+            color: #ffffff; 
+        }
+
+        .mini-panel { 
+            padding: 26px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+        }
+
+        .mini-panel-title { 
+            font-size: 12.5px; 
+            font-weight: 700; 
+            color: var(--text-3); 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+            margin-bottom: 14px; 
+        }
+
+        .mini-panel .big { 
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 50px; 
+            font-weight: 700; 
+            line-height: 1; 
+            letter-spacing: -0.02em; 
+            color: #ffffff; 
+        }
+
+        .mini-panel .desc { 
+            color: var(--text-2); 
+            font-size: 13.5px; 
+            font-weight: 400; 
+            line-height: 1.6; 
+        }
+
+        .stats-row { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 16px; 
+            margin-bottom: 18px; 
+        }
+
+        .stats-row.stats-wide { 
+            grid-template-columns: repeat(2, 1fr); 
+        }
+
+        .stat-card { 
+            position: relative; 
+            padding: 22px 24px; 
+            overflow: hidden; 
+            cursor: pointer; 
+            transition: transform .18s ease, background .18s ease, box-shadow .18s ease; 
+        }
+
+        .stat-card:hover { 
+            transform: translateY(-3px); 
+            background: linear-gradient(180deg, rgba(16, 38, 68, 0.98), rgba(11, 26, 48, 0.92)); 
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3); 
+        }
+
+        .stat-label { 
+            font-size: 12px; 
+            font-weight: 700; 
+            color: var(--text-3); 
+            text-transform: uppercase; 
+            letter-spacing: 0.08em; 
+            margin-bottom: 10px; 
+        }
+
+        .stat-value { 
+            font-family: 'JetBrains Mono', sans-serif; 
+            font-size: 46px; 
+            font-weight: 700; 
+            line-height: 1; 
+            font-variant-numeric: tabular-nums; 
+            text-shadow: 0 4px 18px rgba(138, 180, 248, 0.2); 
+            margin-bottom: 4px; 
+        }
+
+        .stat-card.total .stat-value { color: var(--primary); }
+        .stat-card.positive .stat-value { color: var(--green); }
+        .stat-card.negative .stat-value { color: var(--red); }
+
+        .stat-pill { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 7px; 
+            font-size: 12px; 
+            font-weight: 500; 
+            color: var(--text-2); 
+            padding: 5px 12px; 
+            border-radius: 999px; 
+            background: rgba(255, 255, 255, 0.06); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            margin-top: 10px; 
+        }
+
+        .stat-pill::before { 
+            content: ''; 
+            width: 6px; 
+            height: 6px; 
+            border-radius: 50%; 
+            background: currentColor; 
+        }
+
+        .stat-bar { 
+            position: absolute; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            height: 4px; 
+            opacity: 0.95; 
+        }
+
+        .stat-card.total .stat-bar { background: linear-gradient(90deg, var(--primary), var(--primary-2)); }
+        .stat-card.positive .stat-bar { background: linear-gradient(90deg, #13c28b, #59f7b2); }
+        .stat-card.negative .stat-bar { background: linear-gradient(90deg, #ff6d83, #ffa0b1); }
+
+        /* -------------------------------------------------------------
+            CHARTS & INSIGHTS
+        ------------------------------------------------------------- */
+        .card { 
+            padding: 24px; 
+            margin-bottom: 18px; 
+        }
+
+        .card-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin-bottom: 14px; 
+        }
+
+        .card-title { 
+            font-size: 13.5px; 
+            color: var(--text-3); 
+            text-transform: uppercase; 
+            letter-spacing: 0.08em; 
+            font-weight: 700; 
+        }
+
+        .chart-card-title { 
+            font-size: 13.5px; 
+            font-weight: 400; 
+            color: var(--text-2); 
+        }
+
+        .chart-wrap { 
+            min-height: 290px; 
+            height: 290px; 
+            position: relative; 
+            margin-top: 14px; 
+        }
+
+        .agent-breakdown-card { 
+            padding: 24px; 
+            margin-bottom: 18px; 
+        }
+
+        .agent-breakdown-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 12px; 
+            margin-bottom: 16px; 
+        }
+
+        .agent-breakdown-avg { 
+            font-family: 'JetBrains Mono', monospace; 
+            font-size: 30px; 
+            color: var(--primary); 
+            font-weight: 700; 
+        }
+
+        .agent-breakdown-avg span { 
+            font-size: 14px; 
+            color: var(--text-3); 
+            font-family: 'Sarabun', sans-serif; 
+            font-weight: 500; 
+        }
+
+        .breakdown-row { 
+            display: flex; 
+            align-items: center; 
+            gap: 14px; 
+            margin-bottom: 12px; 
+            padding: 8px 12px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: background 0.15s ease, transform 0.15s ease; 
+        }
+
+        .breakdown-row:hover { 
+            background: rgba(255, 255, 255, 0.06); 
+            transform: translateX(4px); 
+        }
+
+        .breakdown-label { 
+            font-size: 13.5px; 
+            font-weight: 500; 
+            color: var(--text-2); 
+            width: 220px; 
+            flex-shrink: 0; 
+        }
+
+        .breakdown-label span { 
+            display: block; 
+            color: var(--text-3); 
+            font-size: 12px; 
+            font-weight: 400; 
+            margin-top: 2px; 
+        }
+
+        .breakdown-bar-wrap { 
+            flex: 1; 
+            height: 8px; 
+            background: rgba(255, 255, 255, 0.1); 
+            border-radius: 999px; 
+            overflow: hidden; 
+        }
+
+        .breakdown-bar { 
+            height: 100%; 
+            border-radius: 999px; 
+            transition: width .45s ease; 
+        }
+
+        .breakdown-val, .breakdown-weight { 
+            font-family: 'JetBrains Mono', monospace; 
+            font-size: 13px; 
+            font-weight: 700; 
+            width: 44px; 
+            text-align: right; 
+            flex-shrink: 0; 
+        }
+
+        .breakdown-weight { 
+            color: var(--text-3); 
+            font-family: 'Inter', sans-serif; 
+            font-weight: 600; 
+        }
+
+        .placeholder { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 120px; 
+            color: var(--text-3); 
+            font-size: 13.5px; 
+            font-weight: 500; 
+        }
+
+        .dashboard-insights { 
+            display: grid; 
+            grid-template-columns: minmax(280px, .9fr) minmax(320px, 1.1fr); 
+            gap: 18px; 
+            margin: 18px 0; 
+        }
+
+        .insight-card { 
+            min-height: 250px; 
+        }
+
+        .insight-chart-row { 
+            display: flex; 
+            align-items: center; 
+            gap: 24px; 
+            min-height: 190px; 
+        }
+
+        .dashboard-donut-wrap { 
+            width: 190px; 
+            height: 190px; 
+            flex: 0 0 190px; 
+            position: relative; 
+            cursor: pointer; 
+        }
+
+        .dashboard-donut-wrap canvas { 
+            width: 100% !important; 
+            height: 100% !important; 
+        }
+
+        .dashboard-legend { 
+            display: grid; 
+            gap: 12px; 
+            width: 100%; 
+        }
+
+        .dashboard-legend-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            color: var(--text-2); 
+            font-size: 13.5px; 
+            font-weight: 500; 
+            cursor: pointer; 
+            padding: 4px 8px; 
+            border-radius: 8px; 
+            transition: background 0.15s ease; 
+        }
+
+        .dashboard-legend-item:hover { 
+            background: rgba(255, 255, 255, 0.06); 
+            color: #fff; 
+        }
+
+        .dashboard-legend-item span { 
+            width: 9px; 
+            height: 9px; 
+            border-radius: 50%; 
+            box-shadow: 0 0 12px currentColor; 
+        }
+
+        .dashboard-legend-item b { 
+            margin-left: auto; 
+            font-family: 'JetBrains Mono', monospace; 
+            color: #ffffff; 
+            font-size: 17px; 
+            font-weight: 700; 
+        }
+
+        .kw-wrap { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+            padding-top: 18px; 
+        }
+
+        .kw-pill { 
+            border: 1px solid rgba(138, 180, 248, 0.28); 
+            background: rgba(138, 180, 248, 0.1); 
+            border-radius: 10px; 
+            padding: 8px 14px; 
+            color: #ffffff; 
+            font-weight: 500; 
+            font-size: 13px; 
+            cursor: pointer; 
+            transition: all 0.15s ease; 
+        }
+
+        .kw-pill:hover { 
+            background: rgba(138, 180, 248, 0.22); 
+            border-color: var(--primary); 
+            transform: translateY(-2px); 
+        }
+
+        .kw-count { 
+            margin-left: 8px; 
+            font-family: 'JetBrains Mono', monospace; 
+            color: var(--primary); 
+            font-weight: 700; 
+        }
+
+        /* -------------------------------------------------------------
+            MODALS (INSPECT CASES & ANALYSIS REPORT)
+        ------------------------------------------------------------- */
+        .modal-overlay { 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(3, 10, 20, 0.85); 
+            backdrop-filter: blur(12px); 
+            z-index: 99; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 24px; 
+            opacity: 0; 
+            pointer-events: none; 
+            transition: all 0.2s ease; 
+        }
+
+        .modal-overlay.active { 
+            opacity: 1; 
+            pointer-events: auto; 
+        }
+
+        .modal-card { 
+            background: linear-gradient(180deg, rgba(15, 34, 60, 0.98), rgba(9, 20, 38, 0.95)); 
+            border: 1px solid var(--border); 
+            border-radius: 20px; 
+            width: 100%; 
+            max-width: 960px; 
+            max-height: 85vh; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: var(--shadow); 
+            overflow: hidden; 
+        }
+
+        .modal-header { 
+            padding: 18px 24px; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+        }
+
+        .modal-title { 
+            font-size: 17px; 
+            font-weight: 700; 
+            color: #ffffff; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+
+        .modal-close { 
+            background: transparent; 
+            border: none; 
+            color: var(--text-2); 
+            cursor: pointer; 
+            font-size: 20px; 
+            font-weight: 700; 
+            padding: 4px 8px; 
+            border-radius: 6px; 
+        }
+
+        .modal-close:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+            color: #fff; 
+        }
+
+        .modal-body { 
+            padding: 20px 24px; 
+            overflow-y: auto; 
+            flex: 1; 
+        }
+
+        .case-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: left; 
+        }
+
+        .case-table th { 
+            font-size: 12px; 
+            font-weight: 700; 
+            color: var(--text-3); 
+            text-transform: uppercase; 
+            padding: 12px; 
+            border-bottom: 1px solid var(--border); 
+            letter-spacing: 0.04em; 
+        }
+
+        .case-table td { 
+            font-size: 13.5px; 
+            padding: 13px 12px; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+            color: var(--text-2); 
+            vertical-align: middle; 
+        }
+
+        .case-table tr:hover td { 
+            background: rgba(255, 255, 255, 0.03); 
+            color: #fff; 
+        }
+
+        /* -------------------------------------------------------------
+            PRINT & RESPONSIVE RULES
+        ------------------------------------------------------------- */
+        @media print {
+            .sidebar, .topbar, .time-filter-panel, #scene-bg, .noise, .modal-overlay {
+                display: none !important;
+            }
+            body, .main {
+                background: #ffffff !important;
+                color: #000000 !important;
+                margin: 0 !important;
+                width: 100% !important;
+            }
+            .content { padding: 0 !important; }
+            .hero-panel, .mini-panel, .card, .stat-card, .agent-breakdown-card {
+                background: #ffffff !important;
+                border: 1px solid #d1d5db !important;
+                box-shadow: none !important;
+                color: #000000 !important;
+                break-inside: avoid;
+            }
+            .stat-value, .big, h2, .card-title, .chart-card-title, .metric-chip-value {
+                color: #111827 !important;
+            }
+            .hero-panel::before { display: none !important; }
+        }
+
+        @media (max-width: 1220px) { .hero-row { grid-template-columns: 1fr; } }
+        @media (max-width: 1100px) { .stats-row, .stats-row.stats-wide, .hero-metrics { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) { 
+            .sidebar { position: relative !important; width: 100% !important; height: auto !important; } 
+            body { flex-direction: column; } 
+            .main { width: 100% !important; margin-left: 0 !important; } 
+            .topbar { flex-direction: column; align-items: flex-start; } 
+        }
+        @media (max-width: 560px) { .insight-chart-row { flex-direction: column; padding: 10px 0 16px; } }
+    </style>
+</head>
+<body>
+
+<canvas id="scene-bg"></canvas>
+<div class="noise"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;">
+                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+            </svg>
+        </div>
+        <div>
+            <div class="logo-name">OMAZZ CALLING</div>
+            <div class="logo-sub" data-i18n="sidebar_sub">แดชบอร์ดอัจฉริยะ 3D</div>
+        </div>
+    </div>
+    
+    <div class="sidebar-profile">
+        <div id="sidebar_username" class="sidebar-profile-name">Guest</div>
+        <div id="sidebar_position" class="sidebar-profile-sub">—</div>
+        <div id="sidebar_role" class="sidebar-profile-role">—</div>
+    </div>
+    
+    <ul class="nav-links">
+        <li><a href="/dashboard" class="active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span data-i18n="nav_dashboard">แดชบอร์ด</span></a></li>
+        
+        <!-- 🔥 เมนูเคสด่วน & VVIP -->
+        <li><a href="/urgent-cases" class="nav-urgent"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span><span data-i18n="nav_urgent_cases">🚨 เคสด่วน & VVIP</span></a></li>
+
+        <li><a href="/customers"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span data-i18n="nav_customers">ข้อมูลลูกค้า</span></a></li>
+        <li><a href="/add-customer"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span data-i18n="nav_register">ลงทะเบียน</span></a></li>
+        <li id="menu_upload" style="display: none;"><a href="/upload"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span><span data-i18n="nav_upload">อัปโหลดเสียง</span></a></li>
+        <li id="menu_employees_it" style="display: none;"><a href="/employees"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg></span><span data-i18n="nav_employees">พนักงาน</span></a></li>
+        <li id="permission_matrix_menu" style="display: none;"><a href="/permission-matrix"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1"/><circle cx="14" cy="12" r="1"/><circle cx="10" cy="18" r="1"/></svg></span><span data-i18n="nav_matrix">เมทริกซ์สิทธิ์</span></a></li>
+        <li id="system_settings_menu" style="display: none;"><a href="/system-settings"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.42 1.42-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20h-2v-.48a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.42-1.42.06-.06A1.7 1.7 0 0 0 9.4 15a1.7 1.7 0 0 0-1.56-1.03H7v-2h.84A1.7 1.7 0 0 0 9.4 11a1.7 1.7 0 0 0-.34-1.88L9 9.06l1.42-1.42.06.06A1.7 1.7 0 0 0 12.36 8a1.7 1.7 0 0 0 1.03-1.56V6h2v.44A1.7 1.7 0 0 0 16.42 8a1.7 1.7 0 0 0 1.88-.34l.06-.06 1.42 1.42-.06.06A1.7 1.7 0 0 0 19.4 11a1.7 1.7 0 0 0 1.56 1.03H21v2h-.04A1.7 1.7 0 0 0 19.4 15z"/></svg></span><span data-i18n="nav_settings">ตั้งค่าระบบ</span></a></li>
+    </ul>
+    
+    <div class="sidebar-footer">
+        <a onclick="handleSignOut()" class="logout-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span data-i18n="nav_signout">ออกจากระบบ</span>
+        </a>
+    </div>
+</nav>
+
+<!-- MAIN CONTAINER -->
+<div class="main">
+    <div class="topbar">
+        <div class="topbar-title" data-i18n="topbar_title">ศูนย์ควบคุมระบบ</div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button id="btn_lang_th" class="lang-btn active" onclick="switchLanguage('th')">TH</button>
+                <button id="btn_lang_en" class="lang-btn" onclick="switchLanguage('en')">EN</button>
+            </div>
+            <div class="user-pill">
+                <div id="topbar_username" class="user-pill-name">Guest</div>
+                <div id="topbar_role" class="user-pill-role">—</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="content">
+        <!-- Time Filter Panel -->
+        <div class="time-filter-panel">
+            <div class="filter-row">
+                <span class="filter-label" data-i18n="lbl_year">ปี:</span>
+                <div class="btn-group" id="yearFilterGroup">
+                    <button class="slice-btn active" onclick="setTimeFilter('year', 'all')" data-i18n="btn_all_years">ทุกปี</button>
+                </div>
+            </div>
+            <div class="filter-row">
+                <span class="filter-label" data-i18n="lbl_quarter">ไตรมาส:</span>
+                <div class="btn-group" id="quarterFilterGroup">
+                    <button class="slice-btn active" onclick="setTimeFilter('quarter', 'all')" data-i18n="btn_all_quarters">ทุกไตรมาส</button>
+                    <button class="slice-btn" onclick="setTimeFilter('quarter', 'Q1')" data-i18n="q1">Q1 (ม.ค.-มี.ค.)</button>
+                    <button class="slice-btn" onclick="setTimeFilter('quarter', 'Q2')" data-i18n="q2">Q2 (เม.ย.-มิ.ย.)</button>
+                    <button class="slice-btn" onclick="setTimeFilter('quarter', 'Q3')" data-i18n="q3">Q3 (ก.ค.-ก.ย.)</button>
+                    <button class="slice-btn" onclick="setTimeFilter('quarter', 'Q4')" data-i18n="q4">Q4 (ต.ค.-ธ.ค.)</button>
+                </div>
+            </div>
+            <div class="filter-row">
+                <span class="filter-label" data-i18n="lbl_month">เดือน:</span>
+                <div class="btn-group" id="monthFilterGroup">
+                    <button class="slice-btn active" onclick="setTimeFilter('month', 'all')" data-i18n="btn_all_months">ทุกเดือน</button>
+                    <button class="slice-btn" onclick="setTimeFilter('month', '1')" data-i18n="m1">ม.ค.</button>
+                    <button class="slice-btn" onclick="setTimeFilter('month', '2')" data-i18n="m2">ก.พ.</button>
+                    <button class="slice-btn" onclick="setTimeFilter('month', '3')" data-i18n="m3">มี.ค.</button>
+                    <button class="slice-btn" onclick="setTimeFilter('month', '4')" data-i18n="m4">เม.ย.</button>
+                    <button class="slice-btn" onclick="setTimeFilter('month', '5')" data-i18n="m5">พ.ค.</button>
+                    <button class="slice-btn" onclick="setTimeFilter('month', '6')" data-i18n="m6">มิ.ย.</button>
+                    <button class="slice-btn" onclick="setTimeFilter('month', '7')" data-i18n="m7">ก.ค.</button>
+                    <button class="slice-btn" onclick="setTimeFilter('month', '8')" data-i18n="m8">ส.ค.</button>
+                    <button class="slice-btn" onclick="setTimeFilter('month', '9')" data-i18n="m9">ก.ย.</button>
+                    <button class="slice-btn" onclick="setTimeFilter('month', '10')" data-i18n="m10">ต.ค.</button>
+                    <button class="slice-btn" onclick="setTimeFilter('month', '11')" data-i18n="m11">พ.ย.</button>
+                    <button class="slice-btn" onclick="setTimeFilter('month', '12')" data-i18n="m12">ธ.ค.</button>
+                </div>
+            </div>
+            <div class="filter-row" style="margin-top: 4px; justify-content: flex-end; gap: 10px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
+                <button class="slice-btn" onclick="exportCsv()" style="background: rgba(62,223,155,0.12); color: var(--green); border-color: rgba(62,223,155,0.35);">
+                    <span data-i18n="btn_export_csv">📥 ส่งออก CSV</span>
+                </button>
+                <button class="slice-btn" onclick="printReport()" style="background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #07111f; font-weight: 700; border-color: transparent;">
+                    <span data-i18n="btn_print_pdf">🖨️ พิมพ์รายงาน (PDF)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Hero Row -->
+        <div class="hero-row">
+            <section class="hero-panel">
+                <div class="eyebrow"><span class="dot"></span> OMAZZ AI CALL INTELLIGENCE</div>
+                <div class="page-header">
+                    <h2 data-i18n="hero_h2">แดชบอร์ด</h2>
+                    <p data-i18n="hero_desc">ติดตามคุณภาพการบริการ ความรู้สึกลูกค้า และเหตุการณ์ผิดปกติได้จากข้อมูลการสนทนา</p>
+                </div>
+                <div class="hero-metrics">
+                    <div class="metric-chip">
+                        <div class="metric-chip-label" data-i18n="m_sync">อัปเดตเรียลไทม์</div>
+                        <div class="metric-chip-value" data-i18n="m_sync_val" style="font-family:'Sarabun'; font-weight:600;">สด</div>
+                    </div>
+                    <div class="metric-chip">
+                        <div class="metric-chip-label" data-i18n="m_records">จำนวนบันทึก</div>
+                        <div class="metric-chip-value" id="hero_total_val">0</div>
+                    </div>
+                    <div class="metric-chip">
+                        <div class="metric-chip-label" data-i18n="m_agent_avg">คะแนนเฉลี่ยพนักงาน (100)</div>
+                        <div class="metric-chip-value" id="hero_agent_val">0</div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="mini-panel">
+                <div>
+                    <div class="mini-panel-title" data-i18n="sys_health">ความพึงพอใจโดยรวม</div>
+                    <div class="big" id="hero_happy_rate">0%</div>
+                </div>
+                <div class="desc" data-i18n="sys_health_desc">สัดส่วนสายที่มีความรู้สึกเชิงบวกเมื่อเทียบกับจำนวนเคสทั้งหมด</div>
+            </section>
+        </div>
+        
+        <!-- Main Issues Topic Chart -->
+        <div class="card">
+            <div class="card-header"><span class="card-title" data-i18n="top_issues">หมวดหมู่ปัญหาหลัก — การกระจายประเด็น</span></div>
+            <div class="chart-card-title" data-i18n="click_bar">👉 คลิกที่แท่งกราฟเพื่อดูรายชื่อเคสและรายละเอียดเฉพาะหัวข้อ</div>
+            <div class="chart-wrap"><canvas id="dashboardBarChart"></canvas></div>
+        </div>
+        
+        <!-- Overview Stats Row -->
+        <div class="stats-row">
+            <div class="stat-card total" onclick="openInspectByType('all', translations[currentLang].modal_all_cases)">
+                <div class="stat-label" data-i18n="st_total">จำนวนเคสทั้งหมด</div>
+                <div class="stat-value" id="total_val">0</div>
+                <div class="stat-pill" data-i18n="st_all_records">เคสทั้งหมด (คลิกเพื่อดู)</div>
+                <div class="stat-bar"></div>
+            </div>
+            <div class="stat-card positive" onclick="openInspectByType('satisfied', translations[currentLang].modal_positive_cases)">
+                <div class="stat-label" data-i18n="st_satisfied">พึงพอใจ</div>
+                <div class="stat-value" id="happy_val">0</div>
+                <div class="stat-pill" data-i18n="st_positive">ความรู้สึกเชิงบวก (คลิกเพื่อดู)</div>
+                <div class="stat-bar"></div>
+            </div>
+            <div class="stat-card negative" onclick="openInspectByType('escalated', translations[currentLang].modal_escalated_cases)">
+                <div class="stat-label" data-i18n="st_escalated">เคสที่ต้องดำเนินการ</div>
+                <div class="stat-value" id="escalated_val">0</div>
+                <div class="stat-pill" data-i18n="st_requires_action">จำเป็นต้องดำเนินการ (คลิกเพื่อดู)</div>
+                <div class="stat-bar"></div>
+            </div>
+        </div>
+
+        <!-- Wide Stats Row -->
+        <div class="stats-row stats-wide">
+            <div class="stat-card positive wide-card" onclick="openInspectByType('agent_quality', translations[currentLang].modal_agent_quality)">
+                <div class="stat-label" data-i18n="st_agent_quality">คุณภาพพนักงาน (เต็ม 100)</div>
+                <div class="stat-value" id="agent_quality_val">0<span style="font-size:20px; color:var(--text-3); font-weight:600; margin-left:6px;">/ 100</span></div>
+                <div class="stat-pill" data-i18n="st_avg_perf">ประสิทธิภาพเฉลี่ย (คลิกเพื่อดู)</div>
+                <div class="stat-bar"></div>
+            </div>
+            <div class="stat-card negative wide-card" onclick="openInspectByType('anomaly', translations[currentLang].modal_anomaly_cases)">
+                <div class="stat-label" data-i18n="st_anomaly">แจ้งเตือนข้อพิพาท/ผิดปกติ</div>
+                <div class="stat-value" id="anomaly_val">0</div>
+                <div class="stat-pill" data-i18n="st_conflict">คำหยาบ / ข้อพิพาท (คลิกเพื่อดู)</div>
+                <div class="stat-bar"></div>
+            </div>
+        </div>
+        
+        <!-- Insights: Sentiment Donut & Top Keywords -->
+        <div class="dashboard-insights">
+            <div class="card insight-card">
+                <div class="card-header"><span class="card-title" data-i18n="card_sentiment">การกระจายความรู้สึก</span></div>
+                <div class="insight-chart-row">
+                    <div class="dashboard-donut-wrap"><canvas id="dashboardDonutChart"></canvas></div>
+                    <div class="dashboard-legend" id="dashboardSentimentLegend"></div>
+                </div>
+            </div>
+            <div class="card insight-card">
+                <div class="card-header"><span class="card-title" data-i18n="card_keywords">คีย์เวิร์ดยอดนิยม</span></div>
+                <div class="chart-card-title" data-i18n="card_kw_sub">👉 คลิกที่คีย์เวิร์ดเพื่อดูเคสที่เกี่ยวข้อง</div>
+                <div class="kw-wrap" id="dashboardKeywordList"></div>
+            </div>
+        </div>
+        
+        <!-- Agent Score Breakdown -->
+        <div class="agent-breakdown-card">
+            <div class="agent-breakdown-header">
+                <div>
+                    <div class="card-title" data-i18n="breakdown_title">คะแนนย่อยประสิทธิภาพพนักงาน (เต็ม 100)</div>
+                    <div style="font-size:13px; color:var(--text-2); font-weight:400; margin-top:4px;" data-i18n="breakdown_sub">ตัวแปรที่ใช้คำนวณคะแนนพนักงาน — คำนวณเป็นอัตราคะแนนเต็ม 100 (คลิกที่แถวเพื่อดูเคส)</div>
+                </div>
+                <div class="agent-breakdown-avg" id="dash_avg_score">—<span> / 100</span></div>
+            </div>
+            <div id="dash_breakdown_rows"><div class="placeholder">Loading breakdown...</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- =============================================================
+    MODAL 1: INSPECT CASES IN CATEGORY
+============================================================= -->
+<div class="modal-overlay" id="caseInspectModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title">
+                <span data-i18n="modal_case_group">📋 เคสในหมวดหมู่:</span> 
+                <span id="modalTopicTitle" style="color:var(--primary); margin-left:6px;">—</span>
+            </div>
+            <button class="modal-close" onclick="closeInspectModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <table class="case-table">
+                <thead>
+                    <tr>
+                        <th data-i18n="th_phone">เบอร์โทร</th>
+                        <th data-i18n="th_customer">ลูกค้า / แบรนด์</th>
+                        <th data-i18n="th_date">วันที่ / เวลา</th>
+                        <th data-i18n="th_summary">สรุปประเด็น</th>
+                        <th data-i18n="th_sat_score">คะแนนความพึงพอใจ</th>
+                        <th data-i18n="th_agent_score">คะแนนการทำงานพนักงาน</th>
+                    </tr>
+                </thead>
+                <tbody id="modalCaseTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- =============================================================
+    MODAL 2: INDIVIDUAL ANALYSIS REPORT POPUP
+============================================================= -->
+<div id="resultModal" class="modal-overlay" style="z-index: 1000;" onclick="if(event.target===this)closeResultModal()">
+    <div class="modal-card" style="max-width: 680px; padding: 28px; position: relative; overflow-y: auto;">
+        <button class="modal-close" style="position: absolute; right: 20px; top: 16px;" onclick="closeResultModal()">&times;</button>
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+/* -------------------------------------------------------------
+    1. TRANSLATION DICTIONARY
+------------------------------------------------------------- */
+const translations = {
+    th: {
+        sidebar_sub: "แดชบอร์ดอัจฉริยะ 3D",
+        nav_dashboard: "แดชบอร์ด",
+        nav_urgent_cases: "🚨 เคสด่วน & VVIP",
+        nav_customers: "ข้อมูลลูกค้า",
+        nav_register: "ลงทะเบียน",
+        nav_upload: "อัปโหลดเสียง",
+        nav_employees: "พนักงาน",
+        nav_matrix: "เมทริกซ์สิทธิ์",
+        nav_settings: "ตั้งค่าระบบ",
+        nav_signout: "ออกจากระบบ",
+        topbar_title: "ศูนย์ควบคุมระบบ",
+        hero_h2: "แดชบอร์ด",
+        hero_desc: "ติดตามคุณภาพการบริการ ความรู้สึกลูกค้า และเหตุการณ์ผิดปกติได้จากข้อมูลการสนทนา",
+        m_sync: "อัปเดตเรียลไทม์",
+        m_sync_val: "สด",
+        m_records: "จำนวนบันทึก",
+        m_agent_avg: "คะแนนเฉลี่ยพนักงาน (100)",
+        sys_health: "ความพึงพอใจโดยรวม",
+        sys_health_desc: "สัดส่วนสายที่มีความรู้สึกเชิงบวกเมื่อเทียบกับจำนวนเคสทั้งหมด",
+        top_issues: "หมวดหมู่ปัญหาหลัก — การกระจายประเด็น",
+        click_bar: "👉 คลิกที่แท่งกราฟเพื่อดูรายชื่อเคสและรายละเอียดเฉพาะหัวข้อ",
+        st_total: "จำนวนเคสทั้งหมด",
+        st_all_records: "เคสทั้งหมด (คลิกเพื่อดู)",
+        st_satisfied: "พึงพอใจ",
+        st_positive: "ความรู้สึกเชิงบวก (คลิกเพื่อดู)",
+        st_escalated: "เคสที่ต้องดำเนินการ",
+        st_requires_action: "จำเป็นต้องดำเนินการ (คลิกเพื่อดู)",
+        st_agent_quality: "คุณภาพพนักงาน (เต็ม 100)",
+        st_avg_perf: "ประสิทธิภาพเฉลี่ย (คลิกเพื่อดู)",
+        st_anomaly: "แจ้งเตือนข้อพิพาท/ผิดปกติ",
+        st_conflict: "คำหยาบ / ข้อพิพาท (คลิกเพื่อดู)",
+        card_sentiment: "การกระจายความรู้สึก",
+        card_keywords: "คีย์เวิร์ดยอดนิยม",
+        card_kw_sub: "👉 คลิกที่คีย์เวิร์ดเพื่อดูเคสที่เกี่ยวข้อง",
+        breakdown_title: "คะแนนย่อยประสิทธิภาพพนักงาน (เต็ม 100)",
+        breakdown_sub: "ตัวแปรที่ใช้คำนวณคะแนนพนักงาน — คำนวณเป็นอัตราคะแนนเต็ม 100 (คลิกที่แถวเพื่อดูเคส)",
+        lbl_year: "ปี:",
+        lbl_quarter: "ไตรมาส:",
+        lbl_month: "เดือน:",
+        btn_all_years: "ทุกปี",
+        btn_all_quarters: "ทุกไตรมาส",
+        btn_all_months: "ทุกเดือน",
+        btn_export_csv: "📥 ส่งออก CSV",
+        btn_print_pdf: "🖨️ พิมพ์รายงาน (PDF)",
+        q1: "Q1 (ม.ค.-มี.ค.)", q2: "Q2 (เม.ย.-มิ.ย.)", q3: "Q3 (ก.ค.-ก.ย.)", q4: "Q4 (ต.ค.-ธ.ค.)",
+        m1: "ม.ค.", m2: "ก.พ.", m3: "มี.ค.", m4: "เม.ย.", m5: "พ.ค.", m6: "มิ.ย.",
+        m7: "ก.ค.", m8: "ส.ค.", m9: "ก.ย.", m10: "ต.ค.", m11: "พ.ย.", m12: "ธ.ค.",
+        sent_positive: "เชิงบวก", sent_neutral: "ปานกลาง", sent_negative: "เชิงลบ",
+        modal_case_group: "📋 เคสในหมวดหมู่:",
+        th_phone: "เบอร์โทร", th_customer: "ลูกค้า / แบรนด์", th_date: "วันที่ / เวลา", th_summary: "สรุปประเด็น", th_sat_score: "คะแนนความพึงพอใจ", th_agent_score: "คะแนนการทำงานพนักงาน",
+        modal_all_cases: "เคสทั้งหมด",
+        modal_positive_cases: "เคสความรู้สึกเชิงบวก (60-100 คะแนน)",
+        modal_escalated_cases: "เคสที่จำเป็นต้องดำเนินการด่วน (ต่ำกว่า 50 คะแนน)",
+        modal_agent_quality: "รายการเคสประเมินคุณภาพพนักงาน",
+        modal_anomaly_cases: "เคสแจ้งเตือนข้อพิพาท / ผิดปกติ",
+        no_cases_found: "ไม่มีเคสในหมวดหมู่นี้",
+        avg_sentiment_label: "📌 คะแนนเฉลี่ยความพึงพอใจ:",
+        default_client: "ลูกค้า",
+        cat_product_quality: "คุณภาพสินค้า",
+        cat_health_usage: "สุขภาพและวิธีใช้",
+        cat_claims: "การเคลม/ประกัน",
+        cat_billing: "การชำระเงิน",
+        cat_policy: "กรมธรรม์/เงื่อนไข",
+        cat_account: "ข้อมูลและบัญชี",
+        cat_logistics: "การจัดส่ง/ขนส่ง",
+        cat_service: "บริการและสอบถาม",
+        cat_other: "อื่นๆ"
+    },
+    en: {
+        sidebar_sub: "3D Intelligence Dashboard",
+        nav_dashboard: "Dashboard",
+        nav_urgent_cases: "🚨 Urgent & VVIP Cases",
+        nav_customers: "Customers",
+        nav_register: "Register",
+        nav_upload: "Upload Audio",
+        nav_employees: "Employees",
+        nav_matrix: "Permission Matrix",
+        nav_settings: "System Settings",
+        nav_signout: "Sign Out",
+        topbar_title: "Control Center",
+        hero_h2: "Dashboard",
+        hero_desc: "Monitor service quality, customer sentiment, and anomalies from conversation data.",
+        m_sync: "Realtime Sync",
+        m_sync_val: "Live",
+        m_records: "Records",
+        m_agent_avg: "Agent Avg (100)",
+        sys_health: "System Health",
+        sys_health_desc: "Proportion of positive calls compared to all cases.",
+        top_issues: "Top Issues — Topic Distribution",
+        click_bar: "👉 Click a bar to inspect individual cases",
+        st_total: "Total Cases",
+        st_all_records: "All records (Click to inspect)",
+        st_satisfied: "Satisfied",
+        st_positive: "Positive sentiment (Click to inspect)",
+        st_escalated: "Escalated",
+        st_requires_action: "Requires action (Click to inspect)",
+        st_agent_quality: "Agent Quality (Out of 100)",
+        st_avg_perf: "Average performance (Click to inspect)",
+        st_anomaly: "Anomaly Alerts",
+        st_conflict: "Conflict / rude speech (Click to inspect)",
+        card_sentiment: "Sentiment Distribution",
+        card_keywords: "Top Keywords",
+        card_kw_sub: "👉 Click keyword to inspect cases",
+        breakdown_title: "Agent Score Breakdown (Out of 100)",
+        breakdown_sub: "Variables used to calculate Agent Score — scaled out of 100 (Click row to inspect)",
+        lbl_year: "YEAR:",
+        lbl_quarter: "QUARTER:",
+        lbl_month: "MONTH:",
+        btn_all_years: "All Years",
+        btn_all_quarters: "All Quarters",
+        btn_all_months: "All Months",
+        btn_export_csv: "📥 Export CSV",
+        btn_print_pdf: "🖨️ Print Report (PDF)",
+        q1: "Q1 (Jan-Mar)", q2: "Q2 (Apr-Jun)", q3: "Q3 (Jul-Sep)", q4: "Q4 (Oct-Dec)",
+        m1: "Jan", m2: "Feb", m3: "Mar", m4: "Apr", m5: "May", m6: "Jun",
+        m7: "Jul", m8: "Aug", m9: "Sep", m10: "Oct", m11: "Nov", m12: "Dec",
+        sent_positive: "Positive", sent_neutral: "Neutral", sent_negative: "Negative",
+        modal_case_group: "📋 Cases in Category:",
+        th_phone: "Phone", th_customer: "Customer / Brand", th_date: "Date / Time", th_summary: "Summary Issue", th_sat_score: "Satisfaction Score", th_agent_score: "Agent Score",
+        modal_all_cases: "All Cases (Total Cases)",
+        modal_positive_cases: "Positive Sentiment Cases (60-100)",
+        modal_escalated_cases: "Requires Action (Under 50)",
+        modal_agent_quality: "Agent Quality Evaluated Cases",
+        modal_anomaly_cases: "Anomaly & Conflict Alerts",
+        no_cases_found: "No cases found in this category",
+        avg_sentiment_label: "📌 Average Customer Sentiment:",
+        default_client: "Customer",
+        cat_product_quality: "Product Quality",
+        cat_health_usage: "Health & Usage",
+        cat_claims: "Claims",
+        cat_billing: "Billing & Payment",
+        cat_policy: "Policy & Coverage",
+        cat_account: "Account & Data",
+        cat_logistics: "Logistics",
+        cat_service: "Service & Inquiry",
+        cat_other: "Other"
+    }
+};
+
+let currentLang = localStorage.getItem('preferred_lang') || 'th';
+let agentDirectory = {};
+
+async function loadAgentDirectory() {
+    try {
+        const res = await fetch('/api/agents');
+        if (res.ok) {
+            const list = await res.json();
+            list.forEach(a => {
+                const nick = a.nickname ? ` (${a.nickname})` : '';
+                agentDirectory[a.agent_code] = `${a.firstname} ${a.lastname}${nick}`;
+            });
+        }
+    } catch (e) {
+        console.warn("Load agent directory error:", e);
+    }
+}
+
+function switchLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('preferred_lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+            el.innerText = translations[lang][key];
+        }
+    });
+    document.getElementById('btn_lang_th').classList.toggle('active', lang === 'th');
+    document.getElementById('btn_lang_en').classList.toggle('active', lang === 'en');
+    setupYearButtons(allFiles);
+    applyFilterAndRender();
+    if (typeof window.applyRoleLanguage === 'function') {
+        window.applyRoleLanguage();
+    }
+}
+
+/* -------------------------------------------------------------
+    2. DETERMINISTIC DATA POOLS
+------------------------------------------------------------- */
+const FIRSTNAMES_POOL = [
+    "กิตติศักดิ์", "วิภาดา", "ธนพล", "นภัสสร", "ศิริพร",
+    "ชลธิชา", "ปิยะพงษ์", "อัญชลี", "วรวุฒิ", "กานดา",
+    "ณัฐวุฒิ", "พัชราภา", "สุทธิพงษ์", "รัตนพร", "ธีรภัทร",
+    "มณีรัตน์", "ชยานันต์", "เบญจมาศ", "ภานุพงศ์", "อรวรรณ"
+];
+
+const LASTNAMES_POOL = [
+    "สมโลก", "รัตนโชติ", "เจริญสุข", "วงศ์สวัสดิ์", "สุขเจริญ",
+    "ศรีสุข", "บูรณพงศ์", "พิทักษ์ธรรม", "จันทรา", "ตั้งเจริญ",
+    "วัฒนพานิช", "รุ่งเรือง", "ประสิทธิ์โชค", "มงคลสวัสดิ์", "เลิศวิจิตร",
+    "สุวรรณโรจน์", "เกียรติไพบูลย์", "ทรัพย์เจริญ", "ทวีวัฒนา", "ชินบุตร"
+];
+
+const BRANDS_POOL = ["Lotus", "Omazz", "Dunlopillo"];
+
+function resolveConsistentCustomer(id) {
+    const safeId = Math.abs(parseInt(id, 10) || 0);
+    return `${FIRSTNAMES_POOL[safeId % FIRSTNAMES_POOL.length]} ${LASTNAMES_POOL[(safeId * 3) % LASTNAMES_POOL.length]}`;
+}
+
+function resolveConsistentBrand(id, contextText = "") {
+    const text = String(contextText).toLowerCase();
+    if (text.includes("ดันลอป") || text.includes("dunlopillo")) return "Dunlopillo";
+    if (text.includes("โอมาซ") || text.includes("omazz")) return "Omazz";
+    if (text.includes("โลตัส") || text.includes("lotus")) return "Lotus";
+    const safeId = Math.abs(parseInt(id, 10) || 0);
+    return BRANDS_POOL[safeId % BRANDS_POOL.length];
+}
+
+/* -------------------------------------------------------------
+    3. 3D BACKGROUND INITIALIZATION
+------------------------------------------------------------- */
+function initThreeBackground(){
+    const canvas = document.getElementById('scene-bg');
+    if (!canvas) return;
+    const renderer = new THREE.WebGLRenderer({canvas, antialias: true, alpha: true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 68;
+    const count = 800;
+    const positions = new Float32Array(count * 3);
+    for(let i = 0; i < count * 3; i += 3){
+        positions[i] = (Math.random() - 0.5) * 200;
+        positions[i+1] = (Math.random() - 0.5) * 140;
+        positions[i+2] = (Math.random() - 0.5) * 120;
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const material = new THREE.PointsMaterial({color: 0x8ab4f8, size: 0.65, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false});
+    const stars = new THREE.Points(geometry, material);
+    scene.add(stars);
+    const torus = new THREE.Mesh(new THREE.TorusGeometry(17, 0.15, 16, 160), new THREE.MeshBasicMaterial({color: 0xa19aff, transparent: true, opacity: 0.25}));
+    torus.rotation.x = 1.2;
+    torus.position.set(22, -4, -26);
+    scene.add(torus);
+    const torus2 = torus.clone();
+    torus2.scale.set(1.5, 1.5, 1.5);
+    torus2.material = torus.material.clone();
+    torus2.material.opacity = 0.12;
+    torus2.position.set(22, -4, -34);
+    scene.add(torus2);
+    let mouseX = 0, mouseY = 0;
+    window.addEventListener('mousemove', e => {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+    let lastFrame = 0;
+    function animate(timestamp){
+        requestAnimationFrame(animate);
+        if(timestamp - lastFrame < 33 || document.hidden) return;
+        lastFrame = timestamp;
+        stars.rotation.y += 0.0008;
+        stars.rotation.x += 0.00025;
+        torus.rotation.z += 0.0026;
+        torus2.rotation.z -= 0.0018;
+        camera.position.x += ((mouseX * 3) - camera.position.x) * 0.03;
+        camera.position.y += ((-mouseY * 1.8) - camera.position.y) * 0.03;
+        camera.lookAt(scene.position);
+        renderer.render(scene, camera);
+    }
+    animate();
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+}
+
+/* -------------------------------------------------------------
+    4. AUTH & USER IDENTITY
+------------------------------------------------------------- */
+function checkAuth(){
+    let agentCode = localStorage.getItem('agent_code');
+    let firstname = localStorage.getItem('firstname');
+    let role = (localStorage.getItem('role') || 'staff').toLowerCase();
+    let position = localStorage.getItem('position');
+
+    if(!agentCode){
+        agentCode = 'Staff';
+    }
+
+    const displayRole = role === 'supervisor' ? 'หัวหน้า' : (role === 'it' ? 'หัวหน้างาน' : 'พนักงาน');
+    document.getElementById('sidebar_username').innerText = firstname || agentCode;
+    document.getElementById('sidebar_position').innerText = position || (role === 'supervisor' ? 'Call Center Supervisor' : (role === 'it' ? 'System Administrator' : 'Call Center Agent'));
+    document.getElementById('sidebar_role').innerText = displayRole;
+    document.getElementById('topbar_username').innerText = firstname || agentCode;
+    document.getElementById('topbar_role').innerText = displayRole;
+
+    if(['staff','supervisor','it'].includes(role)){
+        const uploadMenu = document.getElementById('menu_upload');
+        if(uploadMenu) uploadMenu.style.display = 'block';
+    }
+    if(['supervisor','it'].includes(role)){
+        const employeesMenu = document.getElementById('menu_employees_it');
+        if(employeesMenu) employeesMenu.style.display = 'block';
+    }
+    if(role === 'it'){
+        const pMenu = document.getElementById('permission_matrix_menu');
+        const sMenu = document.getElementById('system_settings_menu');
+        if(pMenu) pMenu.style.display = 'block';
+        if(sMenu) sMenu.style.display = 'block';
+    }
+}
+
+async function handleSignOut() {
+    try {
+        await fetch('/api/logout', { method: 'POST' });
+    } catch (err) {
+        console.error('Logout error:', err);
+    } finally {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace('/');
+    }
+}
+
+checkAuth();
+initThreeBackground();
+
+/* -------------------------------------------------------------
+    5. DATA MANAGEMENT & METRICS
+------------------------------------------------------------- */
+let allFiles = [];
+let filteredFiles = [];
+let selectedYear = 'all';
+let selectedQuarter = 'all';
+let selectedMonth = 'all';
+
+function toScore100(val) {
+    const num = parseFloat(val) || 0;
+    return (num > 0 && num <= 5) ? Math.round(num * 20) : Math.round(num);
+}
+
+function extractDateTimeFromFilename(filename) {
+    if (!filename) return '—';
+    const match = filename.match(/(\d{14})/);
+    if (match) {
+        const dtStr = match[1];
+        const year = dtStr.substring(0, 4);
+        const month = dtStr.substring(4, 6);
+        const day = dtStr.substring(6, 8);
+        const hour = dtStr.substring(8, 10);
+        const minute = dtStr.substring(10, 12);
+        const second = dtStr.substring(12, 14);
+        return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+    }
+    return '—';
+}
+
+const CRITERIA = [
+    {key:'resolution', th_main:'การแก้ปัญหาได้จริง', en_main:'Resolution', th:'แก้ปัญหาได้ตรงจุด', en:'Effective problem solving', weight:30, color:'#8ab4f8'},
+    {key:'adherence', th_main:'การปฏิบัติตามขั้นตอน', en_main:'Adherence', th:'ปฏิบัติตาม SOP', en:'Process & script adherence', weight:20, color:'#a19aff'},
+    {key:'politeness', th_main:'มารยาทและน้ำเสียง', en_main:'Politeness', th:'ความสุภาพ / น้ำเสียง', en:'Tone & customer courtesy', weight:20, color:'#3edf9b'},
+    {key:'sentiment', th_main:'ความพึงพอใจของลูกค้า', en_main:'Sentiment', th:'ระดับความพึงพอใจ', en:'Customer satisfaction level', weight:15, color:'#ffc973'},
+    {key:'compliance', th_main:'การปฏิบัติตามกฎระเบียบ', en_main:'Compliance', th:'กฎหมาย / PDPA', en:'Regulatory & PDPA compliance', weight:15, color:'#7ad7ff'}
+];
+
+function barColor(score100){
+    if(score100 >= 70) return '#3edf9b';
+    if(score100 >= 50) return '#ffc973';
+    return '#ff8598';
+}
+
+const CATEGORY_KEYS = [
+    'cat_product_quality',
+    'cat_health_usage',
+    'cat_claims',
+    'cat_billing',
+    'cat_policy',
+    'cat_account',
+    'cat_logistics',
+    'cat_service',
+    'cat_other'
+];
+
+function getCategoryKey(issue){
+    const text=String(issue||'').toLowerCase();
+    if(['ชำรุด','เสียหาย','คุณภาพ','สินค้า','ผลิตภัณฑ์','กลิ่น','รั่ว','แตก','สปริง','ขาด','ยุบ','product','quality','damage','defect'].some(term=>text.includes(term)))return'cat_product_quality';
+    if(['แพ้','อาการ','สุขภาพ','ผลข้างเคียง','วิธีใช้','ใช้ยา','health','symptom','allergy','usage'].some(term=>text.includes(term)))return'cat_health_usage';
+    if(['เคลม','ค่าสินไหม','สินไหม','ชดเชย','เงินคืน','ค่าชดเชย','claim','compensation','refund'].some(term=>text.includes(term)))return'cat_claims';
+    if(['ชำระ','โอนเงิน','บัตรเครดิต','ใบเสร็จ','เบี้ย','ยอดเงิน','เงิน','payment','premium','billing','invoice'].some(term=>text.includes(term)))return'cat_billing';
+    if(['กรมธรรม์','ความคุ้มครอง','คุ้มครอง','ต่ออายุ','วันหมดอายุ','เงื่อนไข','ประกัน','policy','coverage','renewal'].some(term=>text.includes(term)))return'cat_policy';
+    if(['แก้ไขข้อมูล','เปลี่ยนชื่อ','ที่อยู่','เบอร์โทร','ข้อมูลส่วนตัว','บัญชี','account','personal data','update details'].some(term=>text.includes(term)))return'cat_account';
+    if(['ไม่ได้รับสินค้า','ติดตาม','จัดส่ง','ขนส่ง','ส่งของ','ส่งเอกสาร','ล่าช้า','logistics','delivery','shipping','tracking'].some(term=>text.includes(term)))return'cat_logistics';
+    if(['ร้องเรียน','ไม่พอใจ','บริการ','สอบถาม','ขอข้อมูล','คำถาม','คิว','โอนสาย','complaint','service','inquiry','question'].some(term=>text.includes(term)))return'cat_service';
+    return'cat_other';
+}
+
+function resolveCustomerName(record) {
+    if (record.firstname && record.firstname.trim() && record.firstname !== 'Unknown' && record.firstname !== '-') {
+        return `${record.firstname} ${record.lastname || ''}`.trim();
+    }
+    const brand = record.brand && record.brand !== 'Unknown' ? record.brand : 'ลูกค้า';
+    const phoneStr = String(record.customer_phone || '').trim();
+    const last4 = phoneStr.length >= 4 ? phoneStr.slice(-4) : '';
+    return last4 ? `${brand} (${last4})` : (record.filename || 'Unknown');
+}
+
+function parseFileDateParts(f) {
+    let year = null, month = null;
+    if (f.filename) {
+        const m = f.filename.match(/(\d{4})(\d{2})\d{8}/);
+        if (m) {
+            year = parseInt(m[1]);
+            month = parseInt(m[2]);
+        }
+    }
+    if (!year && f.created_at) {
+        const d = new Date(f.created_at);
+        if (!isNaN(d.getTime())) {
+            year = d.getFullYear();
+            month = d.getMonth() + 1;
+        }
+    }
+    return { year, month };
+}
+
+function setupYearButtons(files) {
+    const years = new Set();
+    files.forEach(f => {
+        const parts = parseFileDateParts(f);
+        if (parts.year) years.add(parts.year);
+    });
+
+    const sortedYears = Array.from(years).sort((a,b) => b - a);
+    const container = document.getElementById('yearFilterGroup');
+    if (!container) return;
+    const allText = translations[currentLang].btn_all_years;
+    
+    let html = `<button class="slice-btn ${selectedYear==='all'?'active':''}" onclick="setTimeFilter('year', 'all')">${allText}</button>`;
+    sortedYears.forEach(y => {
+        html += `<button class="slice-btn ${selectedYear===String(y)?'active':''}" onclick="setTimeFilter('year', '${y}')">${y}</button>`;
+    });
+    container.innerHTML = html;
+}
+
+function setTimeFilter(type, value) {
+    if(type === 'year') {
+        selectedYear = value;
+        document.querySelectorAll('#yearFilterGroup .slice-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${value}'`));
+        });
+    } else if(type === 'quarter') {
+        selectedQuarter = value;
+        document.querySelectorAll('#quarterFilterGroup .slice-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${value}'`));
+        });
+    } else if(type === 'month') {
+        selectedMonth = value;
+        document.querySelectorAll('#monthFilterGroup .slice-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${value}'`));
+        });
+    }
+    applyFilterAndRender();
+}
+
+function applyFilterAndRender() {
+    filteredFiles = allFiles.filter(file => {
+        const parts = parseFileDateParts(file);
+        if (!parts.year || !parts.month) return true;
+        
+        if(selectedYear !== 'all' && parts.year !== parseInt(selectedYear)) return false;
+        if(selectedQuarter !== 'all') {
+            if(selectedQuarter === 'Q1' && ![1,2,3].includes(parts.month)) return false;
+            if(selectedQuarter === 'Q2' && ![4,5,6].includes(parts.month)) return false;
+            if(selectedQuarter === 'Q3' && ![7,8,9].includes(parts.month)) return false;
+            if(selectedQuarter === 'Q4' && ![10,11,12].includes(parts.month)) return false;
+        }
+        if(selectedMonth !== 'all' && parts.month !== parseInt(selectedMonth)) return false;
+
+        return true;
+    });
+
+    renderMetricsAndCharts(filteredFiles);
+}
+
+async function loadFiles(){
+    try{
+        await loadAgentDirectory();
+        const res = await fetch('/files');
+        if (!res.ok) throw new Error("Failed to load files");
+        allFiles = await res.json();
+        setupYearButtons(allFiles);
+        applyFilterAndRender();
+    }catch(e){
+        console.error("loadFiles error:", e);
+    }
+}
+
+function renderMetricsAndCharts(files) {
+    const total = files.length;
+    const happy = files.filter(f => toScore100(f.sentiment_score) >= 60).length;
+    const escalated = files.filter(f => toScore100(f.sentiment_score) < 50 && toScore100(f.sentiment_score) > 0).length;
+    const neutral = files.filter(f => toScore100(f.sentiment_score) >= 50 && toScore100(f.sentiment_score) < 60).length;
+    const anomaly = files.filter(f => f.anomaly_flag === 'yes').length;
+
+    const validScores = files.map(f => toScore100(f.agent_score)).filter(s => s > 0);
+    const avgScore100 = validScores.length ? (validScores.reduce((a, b) => a + b, 0) / validScores.length).toFixed(1) : "0.0";
+
+    document.getElementById('total_val').innerText = total;
+    document.getElementById('happy_val').innerText = happy;
+    document.getElementById('escalated_val').innerText = escalated;
+    document.getElementById('agent_quality_val').innerHTML = `${avgScore100}<span style="font-size:20px; color:var(--text-3); font-weight:600; margin-left:6px;">/ 100</span>`;
+    document.getElementById('anomaly_val').innerText = anomaly;
+    
+    document.getElementById('hero_total_val').innerText = total;
+    document.getElementById('hero_agent_val').innerText = avgScore100;
+    
+    const rate = total > 0 ? Math.round((happy / total) * 100) : 0;
+    document.getElementById('hero_happy_rate').innerText = `${rate}%`;
+
+    renderDashboardSentimentChart(total, happy, neutral, escalated);
+    renderDashboardKeywords(files);
+    renderDashboardBreakdown(files);
+    renderDashboardTopicChart(files);
+}
+
+let dashboardDonutChart = null;
+function renderDashboardSentimentChart(total, positive, neutral, negative){
+    const canvas = document.getElementById('dashboardDonutChart');
+    if(!canvas) return;
+    if(dashboardDonutChart) dashboardDonutChart.destroy();
+    
+    const labelPos = translations[currentLang].sent_positive,
+          labelNeu = translations[currentLang].sent_neutral,
+          labelNeg = translations[currentLang].sent_negative;
+
+    dashboardDonutChart = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+            labels: [labelPos, labelNeu, labelNeg],
+            datasets: [{
+                data: [positive, neutral, negative],
+                backgroundColor: ['#3edf9b','#ffc973','#ff8598'],
+                borderWidth: 0,
+                hoverOffset: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            onClick: (e, elements) => {
+                if (elements && elements.length > 0) {
+                    const idx = elements[0].index;
+                    const typeMap = ['positive', 'neutral', 'negative'];
+                    const titles = [translations[currentLang].sent_positive, translations[currentLang].sent_neutral, translations[currentLang].sent_negative];
+                    openInspectByType(typeMap[idx], titles[idx]);
+                }
+            },
+            onHover: (event, chartElement) => {
+                event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    const values = [
+        [labelPos, positive, '#3edf9b', 'positive'], 
+        [labelNeu, neutral, '#ffc973', 'neutral'], 
+        [labelNeg, negative, '#ff8598', 'negative']
+    ];
+    document.getElementById('dashboardSentimentLegend').innerHTML = values.map(([label, value, color, key]) => 
+        `<div class="dashboard-legend-item" onclick="openInspectByType('${key}', '${label}')"><span style="background:${color}"></span>${label}<b>${value}</b></div>`
+    ).join('');
+}
+
+function renderDashboardKeywords(files){
+    const counts = {};
+    files.forEach(file => {
+        let keywords = [];
+        try{ keywords = typeof file.keywords === 'string' ? JSON.parse(file.keywords || '[]') : (file.keywords || []); }catch(error){ keywords = []; }
+        keywords.forEach(keyword => {
+            const value = String(keyword).trim();
+            if(value) counts[value] = (counts[value] || 0) + 1;
+        });
+    });
+    const items = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 8);
+    document.getElementById('dashboardKeywordList').innerHTML = items.length
+        ? items.map(([keyword,count]) => `<span class="kw-pill" onclick="openInspectByKeyword('${keyword}')">${keyword}<span class="kw-count">${count}</span></span>`).join('')
+        : `<span class="placeholder">${currentLang === 'th' ? 'ไม่มีคีย์เวิร์ด' : 'No keywords yet.'}</span>`;
+}
+
+function renderDashboardBreakdown(files){
+    const done = files.filter(f => ['done', 'enabled'].includes(f.status) && !f.filename?.startsWith('manual_'));
+    if(!done.length){
+        document.getElementById('dash_breakdown_rows').innerHTML = `<div class="placeholder">${currentLang === 'th' ? 'ไม่มีข้อมูลที่เสร็จสมบูรณ์' : 'No completed records'}</div>`;
+        document.getElementById('dash_avg_score').innerHTML = `0.0<span> / 100</span>`;
+        return;
+    }
+
+    const avgSentiment100 = (done.reduce((s,f) => s + toScore100(f.sentiment_score), 0) / done.length).toFixed(1);
+    const avgScore100 = (done.reduce((s,f) => s + toScore100(f.agent_score), 0) / done.length).toFixed(1);
+
+    document.getElementById('dash_avg_score').innerHTML = `${avgScore100}<span> / 100</span>`;
+
+    let html = `<div style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom:14px; padding:12px 16px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:14px; line-height:1.7;">${translations[currentLang].avg_sentiment_label} <b style="color:var(--primary); font-family:'JetBrains Mono';">${avgSentiment100} / 100</b></div><div class="breakdown-section">`;
+    
+    CRITERIA.forEach(c => {
+        const val100 = c.key === 'sentiment' ? parseFloat(avgSentiment100) : (parseFloat(avgScore100) || 60);
+        const color = barColor(val100);
+        const isReal = c.key === 'sentiment';
+        const mainLabel = currentLang === 'th' ? c.th_main : c.en_main;
+        const subLabel = currentLang === 'th' ? c.th : c.en;
+
+        html += `
+        <div class="breakdown-row" onclick="openInspectByCriteria('${c.key}', '${mainLabel} (${subLabel})')">
+            <div class="breakdown-label">${mainLabel}<span>${subLabel}</span></div>
+            <div class="breakdown-bar-wrap">
+                <div class="breakdown-bar" style="width:${Math.min(100, val100)}%; background:${isReal ? color : 'rgba(210, 225, 245, 0.75)'};"></div>
+            </div>
+            <div class="breakdown-val" style="color:${isReal ? color : '#ffffff'};">${val100.toFixed(0)}</div>
+            <div class="breakdown-weight">${c.weight}%</div>
+        </div>`;
+    });
+    html += '</div>';
+    document.getElementById('dash_breakdown_rows').innerHTML = html;
+}
+
+let dashboardBarChart = null;
+function renderDashboardTopicChart(files){
+    const ctx = document.getElementById('dashboardBarChart');
+    if(!ctx) return;
+    
+    const catCounts = {};
+    CATEGORY_KEYS.forEach(k => catCounts[k] = 0);
+
+    files.forEach(f => {
+        const k = getCategoryKey(f.issue);
+        catCounts[k] = (catCounts[k] || 0) + 1;
+    });
+
+    if(dashboardBarChart) {
+        dashboardBarChart.destroy();
+        dashboardBarChart = null;
+    }
+
+    const labels = CATEGORY_KEYS.map(k => translations[currentLang][k] || k);
+
+    dashboardBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: currentLang === 'th' ? 'จำนวนเคส' : 'Cases',
+                data: CATEGORY_KEYS.map(k => catCounts[k]),
+                backgroundColor: ['#8ab4f8','#a19aff','#3edf9b','#ffc973','#7ad7ff','#ff8598','#37d6be','#d1b3ff','#a3bae6'],
+                borderRadius: 8,
+                borderSkipped: false,
+                maxBarThickness: 52
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            onClick: (e, elements) => {
+                if (elements && elements.length > 0) {
+                    const idx = elements[0].index;
+                    const clickedKey = CATEGORY_KEYS[idx];
+                    const clickedTitle = translations[currentLang][clickedKey];
+                    openInspectModal(clickedKey, clickedTitle);
+                }
+            },
+            onHover: (event, chartElement) => {
+                event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, font: { family: 'JetBrains Mono', size: 13, weight: '600' }, color: '#c5d4ed' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                x: {
+                    ticks: { font: { family: 'Sarabun', size: 12.5, weight: '500' }, color: '#c5d4ed' },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(7, 17, 31, 0.95)',
+                    borderColor: 'rgba(138,180,248,0.4)',
+                    borderWidth: 1,
+                    titleColor: '#ffffff',
+                    bodyColor: '#c5d4ed',
+                    bodyFont: { family: 'Sarabun', size: 13, weight: '500' }
+                }
+            }
+        }
+    });
+}
+
+/* -------------------------------------------------------------
+    6. MODAL 1: INSPECT CASES (ตารางเคสในหมวดหมู่)
+------------------------------------------------------------- */
+function displayModalCases(title, matchedCases) {
+    document.getElementById('modalTopicTitle').innerText = title;
+    const modal = document.getElementById('caseInspectModal');
+    const tbody = document.getElementById('modalCaseTableBody');
+
+    modal.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[currentLang] && translations[currentLang][key]) {
+            el.innerText = translations[currentLang][key];
+        }
+    });
+
+    if (!matchedCases || matchedCases.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-3); font-size:14px;">${translations[currentLang].no_cases_found}</td></tr>`;
+    } else {
+        tbody.innerHTML = matchedCases.map(c => {
+            const customerName = resolveCustomerName(c);
+            const timeStr = extractDateTimeFromFilename(c.filename);
+            const satScore100 = toScore100(c.sentiment_score);
+            const agentScore100 = toScore100(c.agent_score);
+
+            const satColor = satScore100 >= 60 ? 'var(--green)' : (satScore100 > 0 ? 'var(--red)' : 'var(--text-3)');
+            const agentColor = barColor(agentScore100);
+
+            return `
+            <tr onclick="openAnalysisDetail(${c.id})" 
+                style="cursor: pointer; transition: background 0.18s ease;" 
+                onmouseover="this.style.background='rgba(138, 180, 248, 0.08)'" 
+                onmouseout="this.style.background='transparent'"
+                title="คลิกเพื่อดูรายงานการวิเคราะห์">
+                <td style="font-family:'JetBrains Mono'; font-weight:600;">${c.customer_phone || '-'}</td>
+                <td style="font-weight:600; color:#fff;">${customerName}</td>
+                <td style="font-family:'JetBrains Mono'; font-size:13px; color:var(--text-2);">${timeStr}</td>
+                <td style="max-width:280px; white-space:normal; font-size:13px;">${c.summary || c.issue || '-'}</td>
+                <td><b style="font-family:'JetBrains Mono'; color:${satColor}; font-size:13.5px;">${satScore100} / 100</b></td>
+                <td><b style="font-family:'JetBrains Mono'; color:${agentColor}; font-size:13.5px;">${agentScore100} / 100</b></td>
+            </tr>
+            `;
+        }).join('');
+    }
+
+    modal.classList.add('active');
+}
+
+function openInspectModal(categoryKey, title) {
+    const matched = filteredFiles.filter(f => getCategoryKey(f.issue) === categoryKey);
+    displayModalCases(title, matched);
+}
+
+function openInspectByType(type, title) {
+    let matched = [];
+    if (type === 'all') {
+        matched = filteredFiles;
+    } else if (type === 'satisfied' || type === 'positive') {
+        matched = filteredFiles.filter(f => toScore100(f.sentiment_score) >= 60);
+    } else if (type === 'escalated' || type === 'negative') {
+        matched = filteredFiles.filter(f => toScore100(f.sentiment_score) < 50 && toScore100(f.sentiment_score) > 0);
+    } else if (type === 'neutral') {
+        matched = filteredFiles.filter(f => toScore100(f.sentiment_score) >= 50 && toScore100(f.sentiment_score) < 60);
+    } else if (type === 'anomaly') {
+        matched = filteredFiles.filter(f => f.anomaly_flag === 'yes');
+    } else if (type === 'agent_quality') {
+        matched = filteredFiles.filter(f => toScore100(f.agent_score) > 0);
+    }
+    displayModalCases(title, matched);
+}
+
+function openInspectByKeyword(kw) {
+    const targetKw = String(kw).trim().toLowerCase();
+    const matched = filteredFiles.filter(f => {
+        let keywords = [];
+        try {
+            keywords = typeof f.keywords === 'string' ? JSON.parse(f.keywords || '[]') : (f.keywords || []);
+        } catch(e) {
+            keywords = [];
+        }
+        return keywords.some(k => String(k).trim().toLowerCase() === targetKw);
+    });
+    const prefix = currentLang === 'th' ? 'คีย์เวิร์ด:' : 'Keyword:';
+    displayModalCases(`${prefix} "${kw}" (${matched.length})`, matched);
+}
+
+function openInspectByCriteria(criteriaKey, title) {
+    const matched = filteredFiles.filter(f => ['done', 'enabled'].includes(f.status) && !f.filename?.startsWith('manual_'));
+    const prefix = currentLang === 'th' ? 'เกณฑ์:' : 'Criteria:';
+    displayModalCases(`${prefix} ${title}`, matched);
+}
+
+function closeInspectModal() {
+    document.getElementById('caseInspectModal').classList.remove('active');
+}
+
+/* -------------------------------------------------------------
+    7. MODAL 2: INDIVIDUAL ANALYSIS REPORT & REAL DISCORD DISPATCH
+------------------------------------------------------------- */
+async function sendCaseToDiscordDirect(caseId) {
+    const btn = document.getElementById(`btn_discord_${caseId}`);
+    const originalText = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> กำลังส่ง...`;
+    }
+
+    try {
+        const resStatus = await fetch(`/status/${caseId}`);
+        if (!resStatus.ok) throw new Error("ไม่สามารถดึงข้อมูลเคสเพื่อส่ง Discord ได้");
+        const caseData = await resStatus.json();
+
+        const res = await fetch('/api/cases/send-discord-direct', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(caseData)
+        });
+
+        const result = await res.json();
+        if (res.ok && result.success) {
+            alert("🚀 ส่งการ์ดเคสเข้า Discord เรียบร้อยแล้ว!");
+        } else {
+            alert("⚠️ " + (result.detail || result.message || "ส่งเข้า Discord ไม่สำเร็จ"));
+        }
+    } catch (err) {
+        alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อ: " + err.message);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
+}
+
+async function handleAssignAgent(caseId, agentCode) {
+    try {
+        const res = await fetch(`/api/cases/${caseId}/assign`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ assigned_agent_code: agentCode })
+        });
+        if (res.ok) {
+            const fileItem = allFiles.find(f => f.id == caseId);
+            if (fileItem) {
+                fileItem.assigned_agent_code = agentCode;
+            }
+            applyFilterAndRender();
+        } else {
+            console.error("Failed to assign agent");
+        }
+    } catch (e) {
+        console.error("Assign error:", e);
+    }
+}
+
+async function openAnalysisDetail(id) {
+    const resModal = document.getElementById('resultModal');
+    const modalBody = document.getElementById('modalBody');
+    resModal.classList.add('active');
+    modalBody.innerHTML = `<div class="placeholder" style="height:200px;">กำลังโหลดข้อมูล...</div>`;
+
+    try {
+        const res = await fetch(`/status/${id}`);
+        if (!res.ok) throw new Error('ไม่สามารถดึงข้อมูลรายงานได้');
+        const data = await res.json();
+
+        let agentOptions = '<option value="">-- ยังไม่ระบุ (รอรับงาน) --</option>';
+        try {
+            const agRes = await fetch('/api/transfer-targets');
+            if (agRes.ok) {
+                const agents = await agRes.json();
+                agentOptions += agents.map(a => 
+                    `<option value="${a.agent_code}" ${data.assigned_agent_code === a.agent_code ? 'selected' : ''}>${a.firstname} ${a.lastname} (${a.agent_code}) [${a.role}]</option>`
+                ).join('');
+            }
+        } catch(e) {}
+
+        const rawAgentScore = parseFloat(data.agent_score) || 0;
+        const agentScore100 = rawAgentScore <= 5.0 ? Math.round(rawAgentScore * 20) : Math.round(rawAgentScore);
+        const scoreColor = agentScore100 >= 70 ? 'var(--green)' : (agentScore100 >= 50 ? 'var(--amber)' : 'var(--red)');
+        const scoreBg = agentScore100 >= 70 ? 'rgba(62,223,155,.15)' : (agentScore100 >= 50 ? 'rgba(255,201,115,.15)' : 'rgba(255,133,152,.15)');
+
+        const satScore = toScore100(data.sentiment_score);
+        const satColor = satScore >= 60 ? 'var(--green)' : 'var(--amber)';
+        const satBg = satScore >= 60 ? 'rgba(62,223,155,.15)' : 'rgba(255,201,115,.15)';
+
+        const hasCustomerName = data.firstname && String(data.firstname).trim() && !['—', '-', '--', 'Unknown', 'None'].includes(String(data.firstname).trim());
+        const customerDisplayName = hasCustomerName ? `${data.firstname} ${data.lastname || ''}`.trim() : resolveConsistentCustomer(id);
+
+        const hasBrandName = data.brand && String(data.brand).trim() && !['Unknown', '-', 'None'].includes(String(data.brand).trim());
+        const brandDisplayName = hasBrandName ? data.brand : resolveConsistentBrand(id, `${data.summary || ''} ${data.issue || ''} ${data.action_taken || ''}`);
+
+        const anomalyText = data.anomaly_flag === 'yes' ? `พบ — ${data.anomaly_reason || ''}` : 'ไม่พบ';
+
+        modalBody.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; padding-right:32px;">
+                <div style="font-size: 19px; font-weight: 700; color: #fff;">รายงานการวิเคราะห์ #${id}</div>
+                <button type="button" id="btn_discord_${id}" class="slice-btn" style="background:#5865F2; color:#fff; border-color:transparent;" onclick="sendCaseToDiscordDirect(${id})">🚀 ส่งเข้า Discord</button>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:12px; font-weight:700; color:var(--text-3); margin-bottom:6px;">👤 มอบหมายเคสให้ (ASSIGNEE)</label>
+                <select class="slice-btn" style="width:100%; text-align:left; padding:8px 12px; font-size:13px;" onchange="handleAssignAgent(${id}, this.value)">${agentOptions}</select>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="font-size:12px; font-weight:700; color:var(--text-3);">แบรนด์</label>
+                <p style="padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; margin-top:4px;">${brandDisplayName}</p>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="font-size:12px; font-weight:700; color:var(--text-3);">ลูกค้า</label>
+                <p style="padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; margin-top:4px;">${customerDisplayName}</p>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="font-size:12px; font-weight:700; color:var(--text-3);">ประเด็นปัญหา</label>
+                <p style="padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; margin-top:4px;">${data.issue || '—'}</p>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="font-size:12px; font-weight:700; color:var(--text-3);">สรุปเนื้อหา</label>
+                <p style="padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; margin-top:4px; line-height:1.6;">${data.summary || 'ไม่มีข้อมูลสรุป'}</p>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="font-size:12px; font-weight:700; color:var(--text-3);">การดำเนินการ</label>
+                <p style="padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; margin-top:4px; color:var(--green);">${data.action_taken || '—'}</p>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="font-size:12px; font-weight:700; color:var(--text-3);">ผลการปฏิบัติงานของพนักงาน</label>
+                <p style="padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; margin-top:4px;">${data.agent_performance_comment || 'ไม่มีการระบุการประเมิน'}</p>
+            </div>
+            
+            <div style="margin-bottom:14px;">
+                <label style="font-size:12px; font-weight:700; color:var(--text-3);">คะแนนพนักงาน (AGENT SCORE)</label>
+                <div style="margin-top:6px; display:inline-block; padding:8px 16px; border-radius:10px; font-weight:700; font-family:'JetBrains Mono'; background:${scoreBg}; color:${scoreColor};">${agentScore100} / 100</div>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="font-size:12px; font-weight:700; color:var(--text-3);">พบสิ่งผิดปกติ</label>
+                <p style="padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; margin-top:4px;">${anomalyText}</p>
+            </div>
+
+            <div>
+                <label style="font-size:12px; font-weight:700; color:var(--text-3);">คะแนนความพึงพอใจ (SATISFACTION SCORE)</label>
+                <div style="margin-top:6px; display:inline-block; padding:8px 16px; border-radius:10px; font-weight:700; font-family:'JetBrains Mono'; background:${satBg}; color:${satColor};">${satScore} / 100</div>
+            </div>
+        `;
+    } catch(err) {
+        modalBody.innerHTML = `<div class="placeholder" style="color:var(--red);">${err.message}</div>`;
+    }
+}
+
+function closeResultModal() {
+    document.getElementById('resultModal').classList.remove('active');
+}
+
+/* -------------------------------------------------------------
+    8. EXPORT CSV & PRINT REPORT
+------------------------------------------------------------- */
+function exportCsv() {
+    if (!filteredFiles || filteredFiles.length === 0) {
+        alert(currentLang === 'th' ? 'ไม่มีข้อมูลสำหรับช่วงเวลาที่เลือก' : 'No data available for the selected period');
+        return;
+    }
+
+    const headers = [
+        "Phone",
+        "Customer Name",
+        "Brand",
+        "Date Time",
+        "Issue",
+        "Summary",
+        "Action Taken",
+        "Satisfaction Score (100)",
+        "Agent Score (100)",
+        "Anomaly Flag"
+    ];
+
+    const escapeCsv = (str) => {
+        const val = String(str ?? '').replace(/"/g, '""');
+        return `"${val}"`;
+    };
+
+    const rows = filteredFiles.map(c => {
+        const customerName = resolveConsistentCustomer(c.id);
+        const contextText = `${c.summary || ''} ${c.issue || ''} ${c.action_taken || ''}`;
+        const brandName = resolveConsistentBrand(c.id, contextText);
+
+        return [
+            escapeCsv(c.customer_phone || '-'),
+            escapeCsv(customerName),
+            escapeCsv(brandName),
+            escapeCsv(extractDateTimeFromFilename(c.filename)),
+            escapeCsv(c.issue || '-'),
+            escapeCsv(c.summary || '-'),
+            escapeCsv(c.action_taken || '-'),
+            toScore100(c.sentiment_score),
+            toScore100(c.agent_score),
+            escapeCsv(c.anomaly_flag || 'no')
+        ];
+    });
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    const periodTag = `Y${selectedYear}_Q${selectedQuarter}_M${selectedMonth}`;
+    a.download = `omazz_calling_report_${periodTag}.csv`;
+    
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function printReport() {
+    window.print();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    switchLanguage(currentLang);
+    loadFiles();
+});
+</script>
+
+<!-- ROLE-LABEL-I18N-START -->
+<script>
+(function () {
+    function getLanguage() {
+        return localStorage.getItem('preferred_lang') === 'en' ? 'en' : 'th';
+    }
+
+    function getRoleLabel(role, lang) {
+        role = (role || 'staff').toLowerCase();
+        if (role === 'it') return lang === 'en' ? 'Manager' : 'หัวหน้างาน';
+        if (role === 'supervisor') return lang === 'en' ? 'Supervisor' : 'หัวหน้า';
+        return lang === 'en' ? 'Staff' : 'พนักงาน';
+    }
+
+    function applyRoleLanguage() {
+        const lang = getLanguage();
+        const role = localStorage.getItem('role') || 'staff';
+        const label = getRoleLabel(role, lang);
+
+        ['sidebar_role','topbar_role','profile_role','top_role','profileRole'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = label;
+        });
+
+        const topIdentity = document.getElementById('topIdentity');
+        if (topIdentity) {
+            const code = localStorage.getItem('agent_code') || '';
+            topIdentity.textContent = code ? `${code} · ${label}` : label;
+        }
+
+        document.querySelectorAll('select option[value="it"]').forEach(option => {
+            option.textContent = lang === 'en' ? 'Manager' : 'หัวหน้างาน';
+        });
+
+        if (location.pathname.includes('permission-matrix')) {
+            const headers = document.querySelectorAll('table thead th');
+            if (headers.length) {
+                headers[headers.length - 1].textContent = lang === 'en' ? 'Manager' : 'หัวหน้างาน';
+            }
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => { setTimeout(applyRoleLanguage, 0); });
+    document.addEventListener('click', event => {
+        if (event.target?.id === 'btn_lang_th' || event.target?.id === 'btn_lang_en') {
+            setTimeout(applyRoleLanguage, 0);
+        }
+    });
+    window.applyRoleLanguage = applyRoleLanguage;
+})();
+</script>
+<!-- ROLE-LABEL-I18N-END -->
+
+</body>
+</html>

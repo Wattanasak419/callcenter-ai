@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Audio — OMAZZ CALLING</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #f0f2f8;
+            --surface: #ffffff;
+            --primary: #4158f6;
+            --primary-light: #eaecfe;
+            --text: #1a1d2e;
+            --text-2: #5c5f7a;
+            --text-3: #9194a8;
+            --border: #e4e6f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+        }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        .main { max-width: 980px; margin: 0 auto; padding: 28px 20px; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .topbar-title { font-size: 20px; font-weight: 700; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 10px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; text-decoration: none; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-outline { background: #fff; color: var(--text); border: 1px solid var(--border); }
+        .page-header h2 { font-size: 28px; margin-bottom: 8px; }
+        .page-header p { font-size: 14px; color: var(--text-3); }
+        .upload-page-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 36px; box-shadow: var(--shadow); }
+        .upload-zone { background: var(--surface); border: 1.5px dashed #c7cadf; border-radius: 18px; padding: 42px 30px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .upload-zone:hover { border-color: var(--primary); background: var(--primary-light); }
+        .upload-zone h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+        .upload-zone p { color: var(--text-3); font-size: 14px; }
+        .upload-icon { width: 54px; height: 54px; background: var(--primary-light); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+        .upload-icon svg { width: 24px; height: 24px; color: var(--primary); }
+        .status-message { margin-top: 18px; font-size: 14px; color: var(--text-2); }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="topbar">
+            <div class="topbar-title">Upload Audio</div>
+            <a href="/dashboard" class="btn btn-outline">Back to Dashboard</a>
+        </div>
+
+        <div class="page-header">
+            <h2>Upload new audio files</h2>
+            <p>Drag & drop or click to choose .mp3, .wav, .m4a files.</p>
+        </div>
+
+        <div class="upload-page-card">
+            <div class="upload-zone" id="dropZone">
+                <div class="upload-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <h3>Drag & drop audio files</h3>
+                <p>or click here to browse local files</p>
+                <input type="file" id="fileInput" multiple accept="audio/*" style="display:none">
+            </div>
+            <div id="uploadStatus" class="status-message">Ready to upload.</div>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const statusMessage = document.getElementById('uploadStatus');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropZone.style.borderColor = '#4158f6';
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = '#c7cadf';
+        });
+        dropZone.addEventListener('drop', async (event) => {
+            event.preventDefault();
+            dropZone.style.borderColor = '#c7cadf';
+            if (event.dataTransfer.files.length) {
+                await uploadFiles(event.dataTransfer.files);
+            }
+        });
+
+        fileInput.addEventListener('change', async () => {
+            if (fileInput.files.length) {
+                await uploadFiles(fileInput.files);
+            }
+        });
+
+        async function uploadFiles(files) {
+            statusMessage.textContent = 'Uploading and processing...';
+            dropZone.style.opacity = '0.7';
+            for (let i = 0; i < files.length; i++) {
+                const formData = new FormData();
+                formData.append('file', files[i]);
+                try {
+                    await fetch('/upload', { method: 'POST', body: formData });
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+            dropZone.style.opacity = '1';
+            statusMessage.textContent = 'Upload completed. You can return to the dashboard to view the new records.';
+            fileInput.value = '';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Call Center - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0f172a;
+            --surface: rgba(30, 42, 94, 0.6);
+            --primary: #4158f6;
+            --text: #ffffff;
+            --text-2: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --red: #ef4444;
+        }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .welcome-bg {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e2a5e 50%, #3730a3 100%);
+            z-index: 0;
+        }
+        .welcome-bg::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 30% 50%, rgba(65,88,246,0.25) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.15) 0%, transparent 50%);
+        }
+        .grid-lines {
+            position: absolute; inset: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        .container {
+            position: relative; z-index: 1;
+            width: 100%; max-width: 420px;
+            padding: 20px;
+        }
+        .card {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            text-align: center;
+        }
+        .logo-mark {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            border-radius: 18px;
+            margin: 0 auto 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; font-weight: 700; color: white;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 12px 24px rgba(65,88,246,0.4);
+        }
+        h1 { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+        .sub { font-size: 13px; color: var(--text-2); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 32px; }
+        .input-group { text-align: left; margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 13px; font-weight: 500; color: var(--text-2); margin-bottom: 8px; }
+        .input-group input {
+            width: 100%; background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border); border-radius: 12px;
+            padding: 14px 16px; color: white; font-size: 15px;
+            font-family: 'DM Sans', sans-serif; outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(65, 88, 246, 0.25); }
+        .btn-submit {
+            width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            background: var(--primary); color: white; padding: 14px; border-radius: 12px;
+            border: none; cursor: pointer; font-weight: 600; font-size: 15px;
+            box-shadow: 0 8px 20px rgba(65,88,246,0.4); margin-top: 8px; transition: background 0.2s;
+        }
+        .btn-submit:hover { background: #3347e0; }
+        .error-msg { color: var(--red); font-size: 13px; margin-top: 12px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="welcome-bg"><div class="grid-lines"></div></div>
+    <div class="container">
+        <div class="card">
+            <div class="logo-mark">AI</div>
+            <h1>System Access</h1>
+            <p class="sub">Omazz Calling Platform</p>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label>Username / Email</label>
+                    <input type="text" id="username" placeholder="เช่น EMP001" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-submit">
+                    Sign In
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+                <div id="error-msg" class="error-msg">Invalid username or password</div>
+            </form>
+        </div>
+    </div>
+    <script>
+        async function handleLogin(event) {
+            event.preventDefault();
+            const agentCode = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            errorMsg.style.display = "none";
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agent_code: agentCode, password: password })
+                });
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    localStorage.setItem('agent_code', data.agent_code);
+                    localStorage.setItem('role', data.role);
+                    localStorage.setItem('firstname', data.firstname || agentCode);
+                    localStorage.setItem('position', data.position || 'Staff');
+                    window.location.href = '/dashboard';
+                } else {
+                    errorMsg.innerText = data.detail || 'Invalid username or password';
+                    errorMsg.style.display = "block";
+                    document.getElementById('password').value = "";
+                }
+            } catch (err) {
+                errorMsg.innerText = 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์';
+                errorMsg.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html> 

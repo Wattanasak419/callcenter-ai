@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers — OMAZZ CALLING</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #07111f;
+            --surface: rgba(9, 20, 38, .88);
+            --primary: #8ab4f8;
+            --primary-2: #a19aff;
+            --text: #ffffff;
+            --text-2: #c5d4ed;
+            --text-3: #8fa6cb;
+            --border: rgba(170,198,240,.25);
+            --green: #3edf9b;
+            --red: #ff8598;
+            --amber: #ffc973;
+            --discord: #5865F2;
+            --discord-hover: #4752c4;
+            --sidebar-w: 265px;
+            --shadow: 0 22px 60px rgba(0,0,0,0.35);
+        }
+        html, body { min-height: 100%; width: 100%; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, rgba(83, 114, 255, 0.18), transparent 24%),
+                        radial-gradient(circle at bottom right, rgba(111, 70, 255, 0.15), transparent 22%),
+                        var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        #scene-bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.86;
+            pointer-events: none;
+        }
+        .three-noise {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background-image: radial-gradient(rgba(255,255,255,0.05) 0.8px, transparent 0.8px);
+            background-size: 24px 24px;
+            opacity: 0.12;
+        }
+
+        /* SIDEBAR */
+        .sidebar { width: var(--sidebar-w); background: rgba(6,16,31,.85); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 10; overflow-y: auto; backdrop-filter: blur(24px); }
+        .sidebar-logo { display: flex; align-items: center; gap: 14px; padding: 24px 20px 18px; border-bottom: 1px solid var(--border); }
+        .logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0; box-shadow: 0 16px 28px rgba(69,105,255,.28); }
+        .logo-name { font-weight: 800; font-size: 16px; color: #fff; }
+        .logo-sub { font-size: 12px; color: var(--text-2); font-weight: 500; margin-top: 3px; }
+        
+        .sidebar-profile { margin: 16px 14px 8px; background: linear-gradient(180deg, rgba(15,30,52,.95), rgba(9,20,38,.88)); border-radius: 18px; padding: 16px; border: 1px solid var(--border); box-shadow: 0 18px 32px rgba(0,0,0,.2); }
+        .sidebar-profile-name { font-weight: 700; font-size: 16px; color: #fff; margin-bottom: 4px; }
+        .sidebar-profile-sub { font-size: 13px; color: var(--text-2); margin-bottom: 6px; font-weight: 500; }
+        .sidebar-profile-role { font-size: 12px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em; }
+        .sidebar-profile-role::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-2)); box-shadow: 0 0 14px rgba(138,180,248,.9); }
+
+        .nav-links { list-style: none; padding: 10px; flex: 1; margin: 0; }
+        .nav-links li { height: 48px; margin-bottom: 8px; }
+        .nav-links li a { width: 100%; height: 48px; min-height: 48px; display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; text-decoration: none; color: var(--text-2); font-size: 15px; font-weight: 700; transition: all 0.18s; border: 1px solid transparent; box-sizing: border-box; white-space: nowrap; }
+        .nav-links li a:hover { background: rgba(138,180,248,.18); color: #fff; border-color: rgba(138,180,248,.3); }
+        .nav-links li a.active { background: rgba(138,180,248,.18); color: #fff; border-color: rgba(138,180,248,.3); }
+        .nav-icon { width: 20px; height: 20px; flex-shrink: 0; }
+        .nav-icon svg { width: 100%; height: 100%; }
+        .sidebar-footer { padding: 14px 10px; border-top: 1px solid var(--border); }
+        .logout-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; text-decoration: none; color: var(--text-3); font-size: 15px; font-weight: 700; transition: all 0.18s; cursor: pointer; background: transparent; border: none; font-family: 'Inter', sans-serif; text-align: left; }
+        .logout-btn:hover { background: rgba(255,133,152,.12); color: var(--red); }
+
+        /* MAIN */
+        .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 2; width: calc(100% - var(--sidebar-w)); }
+        .topbar { background: rgba(7,17,31,.75); border-bottom: 1px solid var(--border); padding: 0 36px; height: 72px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 5; backdrop-filter: blur(20px); width: 100%; }
+        .topbar-title { font-size: 15px; font-weight: 800; color: var(--text-2); letter-spacing: 0.1em; text-transform: uppercase; }
+        
+        .topbar-right { display: flex; align-items: center; gap: 20px; }
+        .user-pill { text-align: right; line-height: 1.2; }
+        .user-pill-name { font-size: 15px; font-weight: 800; color: #fff; }
+        .user-pill-role { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 2px; }
+
+        .lang-switch { display: flex; background: rgba(255,255,255,.08); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 3px; }
+        .lang-btn { background: transparent; border: none; color: var(--text-2); font-size: 13px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all .2s ease; }
+        .lang-btn.active { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #07111f; box-shadow: 0 4px 14px rgba(138,180,248,.4); }
+
+        .btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 12px; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; transition: all 0.18s; text-decoration: none; }
+        .btn-outline { background: rgba(255,255,255,.03); color: var(--text-2); border: 1px solid var(--border); }
+        .btn-outline:hover { border-color: var(--primary); color: #fff; background: rgba(138,180,248,.08); }
+        .btn-danger { background: rgba(255,133,152,.12); color: var(--red); border: none; }
+        .btn-danger:hover { background: rgba(255,133,152,.22); }
+        .btn-sm { padding: 6px 14px; font-size: 13px; border-radius: 10px; }
+
+        /* DISCORD BUTTON */
+        .btn-discord {
+            background: var(--discord);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            padding: 9px 18px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.18s ease;
+            box-shadow: 0 4px 14px rgba(88, 101, 242, 0.35);
+        }
+        .btn-discord:hover:not(:disabled) {
+            background: var(--discord-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(88, 101, 242, 0.45);
+        }
+        .btn-discord:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .content {
+            padding: 36px 36px 36px 20px;
+            flex: 1;
+            width: 100%;
+            max-width: none !important;
+        }
+        .page-header { margin-bottom: 24px; }
+        .page-header h2 { font-size: 32px; font-weight: 800; letter-spacing: -0.03em; color: #fff; margin-bottom: 6px; }
+        .page-header p { font-size: 15px; color: var(--text-2); font-weight: 500; }
+
+        /* RECORD STATE TABS */
+        .record-state-tabs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0;
+            padding: 4px;
+            width: fit-content;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: rgba(255,255,255,.035);
+        }
+        .record-state-tab {
+            min-width: 110px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-2);
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all .18s ease;
+        }
+        .record-state-tab:hover { color: #fff; background: rgba(138,180,248,.08); }
+        .record-state-tab.active {
+            color: #07111f;
+            background: linear-gradient(135deg, var(--green), #7bf0bd);
+            box-shadow: 0 8px 22px rgba(62,223,155,.18);
+        }
+        .record-state-tab.disabled-tab.active {
+            color: #07111f;
+            background: linear-gradient(135deg, var(--amber), #ffe09a);
+            box-shadow: 0 8px 22px rgba(255,201,115,.18);
+        }
+
+        /* SEARCH */
+        .search-wrap { margin-bottom: 24px; position: relative; }
+        .search-wrap svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; }
+        .search-input { width: 100%; max-width: 500px; padding: 12px 16px 12px 46px; border: 1px solid var(--border); border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text); background: #0f1e34; transition: border-color 0.18s; color-scheme: dark; }
+        .search-input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(138,180,248,.2); }
+
+        /* TABLE */
+        .table-card { background: var(--surface); border-radius: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden; margin-bottom: 24px; backdrop-filter: blur(18px); width: 100%; }
+        .table-card-header { padding: 18px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(12,28,50,.6); flex-wrap: wrap; gap: 14px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 16px 28px; font-size: 12px; font-weight: 800; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.12em; background: rgba(12,28,50,.95); border-bottom: 1px solid var(--border); vertical-align: middle; }
+        th:last-child { text-align: right; }
+        td { padding: 18px 28px; border-bottom: 1px solid var(--border); font-size: 15px; color: var(--text-2); font-weight: 600; vertical-align: middle; }
+        td:last-child { text-align: right; }
+        td.action-cell { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+        tr.clickable:hover td { background: rgba(138,180,248,.06); color: #fff; cursor: pointer; }
+        tr.active-row td { background: rgba(138,180,248,.15); color: #fff; }
+        tr.clickable td { height: 68px; padding: 0 28px; transition: background 0.18s; }
+        tr:last-child td { border-bottom: none; }
+        tr:not(.clickable):hover td { background: rgba(138,180,248,.06); color: #fff; }
+        .status-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+        .status-done { background: rgba(62,223,155,.15); color: var(--green); }
+        .status-proc { background: rgba(255,201,115,.15); color: var(--amber); }
+        .status-progress { background: rgba(138,180,248,.15); color: var(--primary); }
+        .score-pill { display: inline-flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; }
+
+        /* TIME & QUARTER CONTROLS */
+        .time-filter-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15,30,52,0.9);
+            padding: 4px 8px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+        }
+        .filter-select {
+            background: #0b1728;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            outline: none;
+            color-scheme: dark;
+        }
+        .filter-select:focus {
+            border-color: var(--primary);
+        }
+
+        /* ANALYSIS GRID */
+        .analysis-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; width: 100%; }
+        .card { background: var(--surface); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); border: 1px solid var(--border); backdrop-filter: blur(18px); }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        .card-title { font-size: 12px; font-weight: 800; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.14em; }
+        .content-box { min-height: 220px; max-height: 480px; overflow-y: auto; font-size: 14.5px; line-height: 1.75; color: var(--text-2); font-weight: 500; }
+        .content-box::-webkit-scrollbar { width: 6px; }
+        .content-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+        .placeholder { display: flex; align-items: center; justify-content: center; height: 160px; color: var(--text-3); font-size: 14px; font-weight: 600; text-align: center; padding: 0 10px; }
+        .audio-filename { font-size: 13px; color: var(--text-3); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; font-weight: 600; word-break: break-all; }
+        audio { width: 100%; height: 40px; margin-top: 10px; color-scheme: dark; }
+
+        /* CHAT */
+        .chat-box { display: flex; flex-direction: column; gap: 12px; }
+        .msg { padding: 12px 16px; border-radius: 12px; font-size: 14px; max-width: 88%; line-height: 1.6; font-weight: 500; }
+        .agent { background: rgba(138,180,248,.18); color: var(--primary); align-self: flex-start; border-top-left-radius: 4px; border: 1px solid rgba(138,180,248,.3); }
+        .customer { background: rgba(255,255,255,.05); color: var(--text); align-self: flex-end; border-top-right-radius: 4px; border: 1px solid var(--border); }
+
+        /* HISTORY */
+        .profile-card { background: rgba(138,180,248,.12); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; border: 1px solid rgba(138,180,248,.25); }
+        .profile-name { font-weight: 800; font-size: 15px; color: var(--primary); margin-bottom: 6px; }
+        .profile-meta { font-size: 13px; color: var(--text-2); line-height: 1.7; font-weight: 500; }
+        .history-item { padding: 8px 8px; border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.18s; border-radius: 8px; }
+        .history-item:hover { padding-left: 12px; background: rgba(138,180,248,.08); }
+        .history-item:last-child { border-bottom: none; }
+        .history-date { font-size: 13px; font-weight: 700; color: #fff; }
+        .history-issue { font-size: 13.5px; color: var(--text-2); margin-top: 3px; font-weight: 500; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; z-index: 9999; inset: 0; background: rgba(2,8,18,.8); backdrop-filter: blur(8px); }
+        .modal-content { background: #0b1728; margin: 5vh auto; padding: 32px; border-radius: 20px; width: 680px; max-width: 95vw; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 24px 64px rgba(0,0,0,0.4); border: 1px solid var(--border); }
+        .modal-content::-webkit-scrollbar { width: 6px; }
+        .modal-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+        .close-btn { position: absolute; right: 24px; top: 22px; background: rgba(255,255,255,.08); border: none; cursor: pointer; color: var(--text-2); font-size: 20px; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; transition: all .18s; }
+        .close-btn:hover { background: rgba(255,133,152,.2); color: var(--red); }
+        .modal-title { font-size: 22px; font-weight: 800; margin-bottom: 20px; color: #fff; }
+        .modal-field { margin-bottom: 16px; }
+        .modal-field label { display: block; font-size: 12px; font-weight: 800; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 6px; }
+        .modal-field p { font-size: 15px; color: var(--text); background: rgba(255,255,255,.04); padding: 12px 16px; border-radius: 12px; line-height: 1.65; border: 1px solid var(--border); font-weight: 500; }
+        .modal-score { display: inline-flex; align-items: center; gap: 8px; background: rgba(62,223,155,.15); color: var(--green); padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 20px; font-family: 'JetBrains Mono', monospace; border: 1px solid rgba(62,223,155,0.3); }
+
+        .search-state-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 24px;
+            width: 100%;
+        }
+        .search-state-row .search-wrap { flex: 1; margin-bottom: 0 !important; }
+        .search-state-row .record-state-tabs { margin: 0 0 0 auto !important; flex-shrink: 0; }
+
+        @media(max-width: 1400px) { .analysis-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media(max-width: 850px) {
+            .search-state-row { flex-direction: column; align-items: stretch; }
+            .search-state-row .record-state-tabs { margin-left: 0 !important; }
+            .table-card-header { flex-direction: column; align-items: flex-start; }
+            .time-filter-controls { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+        }
+        @media(max-width: 768px) { 
+            .analysis-grid { grid-template-columns: 1fr; } 
+            .sidebar { width: 72px !important; } 
+            .main { margin-left: 72px !important; width: calc(100% - 72px) !important; } 
+        }
+        li:has(> a[href="/graph-report"]) { display: none !important; }
+    </style>
+</head>
+<body>
+<canvas id="scene-bg"></canvas><div class="three-noise"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;">
+                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+            </svg>
+        </div>
+        <div>
+            <div class="logo-name">OMAZZ CALLING</div>
+            <div class="logo-sub" data-i18n="sidebar_sub">3D Intelligence Dashboard</div>
+        </div>
+    </div>
+
+    <div class="sidebar-profile">
+        <div id="sidebar_username" class="sidebar-profile-name">Loading...</div>
+        <div id="sidebar_position" class="sidebar-profile-sub">—</div>
+        <div id="sidebar_role" class="sidebar-profile-role">—</div>
+    </div>
+
+    <ul class="nav-links">
+        <li><a href="/dashboard"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span data-i18n="nav_dashboard">Dashboard</span></a></li>
+        <li><a href="/customers" class="active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span data-i18n="nav_customers">Customers</span></a></li>
+        <li><a href="/warranty"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/><path d="m9 12 2 2 4-4"/></svg></span><span data-i18n="nav_warranty">Warranty</span></a></li>
+        <li><a href="/add-customer"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span data-i18n="nav_register">Register</span></a></li>
+        <li id="menu_upload" style="display:none;"><a href="/upload"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span><span data-i18n="nav_upload">Upload audio</span></a></li>
+        <li id="menu_employees_it" style="display:none;"><a href="/employees"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg></span><span data-i18n="nav_employees">Employees</span></a></li>
+        <li id="permission_matrix_menu" style="display:none;"><a href="/permission-matrix"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1"/><circle cx="14" cy="12" r="1"/><circle cx="10" cy="18" r="1"/></svg></span><span data-i18n="nav_matrix">Permission Matrix</span></a></li>
+        <li id="system_settings_menu" style="display:none;"><a href="/system-settings"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.42 1.42-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20h-2v-.48a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.42-1.42.06-.06A1.7 1.7 0 0 0 9.4 15a1.7 1.7 0 0 0-1.56-1.03H7v-2h.84A1.7 1.7 0 0 0 9.4 11a1.7 1.7 0 0 0-.34-1.88L9 9.06l1.42-1.42.06.06A1.7 1.7 0 0 0 12.36 8a1.7 1.7 0 0 0 1.03-1.56V6h2v.44A1.7 1.7 0 0 0 16.42 8a1.7 1.7 0 0 0 1.88-.34l.06-.06 1.42 1.42-.06.06A1.7 1.7 0 0 0 19.4 11a1.7 1.7 0 0 0 1.56 1.03H21v2h-.04A1.7 1.7 0 0 0 19.4 15z"/></svg></span><span data-i18n="nav_settings">System Settings</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <button onclick="handleSignOut()" class="logout-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span data-i18n="nav_signout">Sign Out</span>
+        </button>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+    <div class="topbar">
+        <div class="topbar-title" data-i18n="topbar_title">Customers</div>
+        <div class="topbar-right">
+            <div class="lang-switch">
+                <button id="btn_lang_th" class="lang-btn active" onclick="switchLanguage('th')">TH</button>
+                <button id="btn_lang_en" class="lang-btn" onclick="switchLanguage('en')">EN</button>
+            </div>
+            <div class="user-pill">
+                <div id="topbar_username" class="user-pill-name">Loading...</div>
+                <div id="topbar_role" class="user-pill-role">—</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="page-header">
+            <h2 data-i18n="page_title">Customer Directory</h2>
+            <p data-i18n="page_desc">View, search, and manage all registered customer policies</p>
+        </div>
+
+        <!-- SEARCH & TABS -->
+        <div class="search-state-row">
+            <div class="search-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by name or phone number..." onkeyup="filterCustomers()" data-i18n-placeholder="search_placeholder">
+            </div>
+
+            <div class="record-state-tabs">
+                <button id="tab_enabled" class="record-state-tab active" type="button" onclick="switchRecordState('enabled')">
+                    <span id="tab_enabled_text">เปิดใช้งาน</span>
+                </button>
+                <button id="tab_disabled" class="record-state-tab disabled-tab" type="button" onclick="switchRecordState('disabled')">
+                    <span id="tab_disabled_text">ปิดใช้งาน</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- CUSTOMERS TABLE -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <span style="font-size:14px; font-weight:800; color: #fff;" data-i18n="table_all_cust">All Customers</span>
+                <span id="customerCount" style="font-size:13px; font-weight:600; color:var(--text-3);"></span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th data-i18n="th_name">Name</th>
+                        <th data-i18n="th_phone">Phone</th>
+                        <th data-i18n="th_age">Age</th>
+                        <th data-i18n="th_expiry">Policy Expiry</th>
+                        <th data-i18n="th_actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="customerTableBody">
+                    <tr><td colspan="5" style="text-align:center; color:var(--text-3); padding:28px;" data-i18n="loading_text">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ANALYSIS PANELS (4 cards) -->
+        <div class="analysis-grid">
+            <div class="card">
+                <div class="card-header"><span class="card-title" data-i18n="card_summary">AI Summary</span></div>
+                <div id="summary_text" class="content-box"><div class="placeholder" data-i18n="ph_select_case">Select a case to view summary</div></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="card-title" data-i18n="card_audio">Audio Playback</span></div>
+                <div id="audio_container" class="content-box" style="display:flex; align-items:center; justify-content:center;">
+                    <p id="audio_placeholder" class="placeholder" data-i18n="ph_select_audio">Select a case to play audio</p>
+                    <div id="player_wrapper" style="display:none; width:100%;">
+                        <div id="audio_filename" class="audio-filename"></div>
+                        <audio id="main_audio_player" controls>
+                            <source id="audio_source" src="" type="audio/wav">
+                        </audio>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="card-title" data-i18n="card_history">Customer History</span></div>
+                <div id="history_box" class="content-box"><div class="placeholder" data-i18n="ph_select_history">Select a case to load history</div></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="card-title" data-i18n="card_convo">Conversation</span></div>
+                <div id="chat_display" class="content-box chat-box"><div class="placeholder" data-i18n="ph_no_case">No case selected</div></div>
+            </div>
+        </div>
+
+        <!-- RECENT ANALYSES TABLE -->
+        <div class="table-card" id="analyses-card">
+            <div class="table-card-header">
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                    <span style="font-size:14px; font-weight:800; color:#fff;" data-i18n="table_recent">Recent Analyses</span>
+                    
+                    <span id="filter-badge" style="display:none; align-items:center; gap:6px; background:rgba(138,180,248,.18); color:var(--primary); font-size:12px; font-weight:700; padding:4px 12px; border-radius:100px; border:1px solid rgba(138,180,248,.3);">
+                        <span id="filter-badge-text"></span>
+                        <button onclick="clearPhoneFilter()" style="background:none; border:none; cursor:pointer; color:var(--primary); font-size:16px; line-height:1; padding:0 0 0 4px;" title="Clear filter">×</button>
+                    </span>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <div class="time-filter-controls">
+                        <select id="time_year" class="filter-select" onchange="applyTimeFilter()">
+                            <option value="all">ทุกปี (All Years)</option>
+                        </select>
+
+                        <select id="time_quarter" class="filter-select" onchange="onQuarterChange()">
+                            <option value="all">ทุกไตรมาส (All Quarters)</option>
+                            <option value="Q1">Q1 (ม.ค. - มี.ค.)</option>
+                            <option value="Q2">Q2 (เม.ย. - มิ.ย.)</option>
+                            <option value="Q3">Q3 (ก.ค. - ก.ย.)</option>
+                            <option value="Q4">Q4 (ต.ค. - ธ.ค.)</option>
+                        </select>
+
+                        <select id="time_month" class="filter-select" onchange="onMonthChange()">
+                            <option value="all">ทุกเดือน (All Months)</option>
+                            <option value="01">มกราคม (Jan)</option>
+                            <option value="02">กุมภาพันธ์ (Feb)</option>
+                            <option value="03">มีนาคม (Mar)</option>
+                            <option value="04">เมษายน (Apr)</option>
+                            <option value="05">พฤษภาคม (May)</option>
+                            <option value="06">มิถุนายน (Jun)</option>
+                            <option value="07">กรกฎาคม (Jul)</option>
+                            <option value="08">สิงหาคม (Aug)</option>
+                            <option value="09">กันยายน (Sep)</option>
+                            <option value="10">ตุลาคม (Oct)</option>
+                            <option value="11">พฤศจิกายน (Nov)</option>
+                            <option value="12">ธันวาคม (Dec)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-outline btn-sm" type="button" onclick="exportCsv()" title="Export CSV">&#8595; <span data-i18n="export_csv">Export CSV</span></button>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th data-i18n="th_cust_file">Customer / Filename</th>
+                        <th data-i18n="th_date_time">Date / Time</th>
+                        <th data-i18n="th_direction">Direction</th>
+                        <th data-i18n="th_status">Status</th>
+                        <th data-i18n="th_score">Satisfaction Score</th>
+                        <th data-i18n="th_actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="fileListBody">
+                    <tr><td colspan="6" style="text-align:center; color:var(--text-3); padding:28px;" data-i18n="loading_text">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div id="resultModal" class="modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+const translations = {
+    th: {
+        sidebar_sub: "3D Intelligence Dashboard",
+        nav_dashboard: "หน้าหลัก",
+        nav_customers: "ข้อมูลลูกค้า",
+        nav_warranty: "การรับประกัน",
+        nav_register: "ลงทะเบียน",
+        nav_upload: "อัปโหลดเสียง",
+        nav_employees: "พนักงาน",
+        nav_matrix: "สิทธิ์การใช้งาน",
+        nav_settings: "ตั้งค่าระบบ",
+        nav_signout: "ออกจากระบบ",
+        topbar_title: "Customers",
+        page_title: "Customer Directory",
+        page_desc: "View, search, and manage all registered customer policies",
+        th_cust_file: "Customer / Filename",
+        th_date_time: "วันที่ / เวลา",
+        th_phone: "เบอร์โทรศัพท์",
+        th_actions: "Actions",
+        search_placeholder: "Search by name or phone number...",
+        table_all_cust: "All Customers",
+        th_name: "Name",
+        th_age: "Age",
+        th_expiry: "Policy Expiry",
+        loading_text: "Loading...",
+        card_summary: "AI Summary",
+        ph_select_case: "Select a case to view summary",
+        card_audio: "Audio Playback",
+        ph_select_audio: "Select a case to play audio",
+        card_history: "Customer History",
+        ph_select_history: "Select a case to load history",
+        card_convo: "Conversation",
+        ph_no_case: "No case selected",
+        table_recent: "Recent Analyses",
+        th_direction: "Direction",
+        th_status: "Status",
+        assigned_to: "ผู้รับผิดชอบ:",
+        accepted_work: "รับงานแล้ว",
+        th_score: "Satisfaction Score",
+        export_csv: "ส่งออก CSV",
+        err_load_analysis: "ไม่สามารถโหลดรายการวิเคราะห์ได้",
+        modal_report: "Analysis Report",
+        lbl_brand: "แบรนด์",
+        lbl_customer: "ลูกค้า",
+        lbl_issue: "ประเด็นปัญหา",
+        lbl_summary: "สรุปเนื้อหา",
+        lbl_action: "การดำเนินการ",
+        lbl_perf: "ผลการปฏิบัติงานของพนักงาน",
+        lbl_score: "คะแนนพนักงาน (Agent Score)",
+        lbl_breakdown: "Score Breakdown",
+        lbl_criteria: "Criteria",
+        lbl_anomaly: "พบสิ่งผิดปกติ",
+        lbl_satisfaction: "คะแนนความพึงพอใจ (Satisfaction Score)",
+        btn_send_discord: "ส่งเข้า Discord",
+        sending_discord: "กำลังส่งเข้า Discord...",
+        discord_sent_ok: "ส่งเข้า Discord เรียบร้อยแล้ว!",
+        discord_sent_fail: "ส่งเข้า Discord ไม่สำเร็จ: ",
+    },
+    en: {
+        sidebar_sub: "3D Intelligence Dashboard",
+        nav_dashboard: "Dashboard",
+        nav_customers: "Customers",
+        nav_warranty: "Warranty",
+        nav_register: "Register",
+        nav_upload: "Upload audio",
+        nav_employees: "Employees",
+        nav_matrix: "Permission Matrix",
+        nav_settings: "System Settings",
+        nav_signout: "Sign Out",
+        topbar_title: "Customers",
+        page_title: "Customer Directory",
+        page_desc: "View, search, and manage all registered customer policies",
+        th_cust_file: "Customer / Filename",
+        th_date_time: "Date / Time",
+        th_phone: "Phone Number",
+        th_actions: "Actions",
+        search_placeholder: "Search by name or phone number...",
+        table_all_cust: "All Customers",
+        th_name: "Name",
+        th_age: "Age",
+        th_expiry: "Policy Expiry",
+        loading_text: "Loading...",
+        card_summary: "AI Summary",
+        ph_select_case: "Select a case to view summary",
+        card_audio: "Audio Playback",
+        ph_select_audio: "Select a case to play audio",
+        card_history: "Customer History",
+        ph_select_history: "Select a case to load history",
+        card_convo: "Conversation",
+        ph_no_case: "No case selected",
+        table_recent: "Recent Analyses",
+        th_direction: "Direction",
+        th_status: "Status",
+        assigned_to: "Assigned to:",
+        accepted_work: "Accepted",
+        th_score: "Satisfaction Score",
+        export_csv: "Export CSV",
+        err_load_analysis: "Failed to load analyses",
+        modal_report: "Analysis Report",
+        lbl_brand: "Brand",
+        lbl_customer: "Customer",
+        lbl_issue: "Issue Topic",
+        lbl_summary: "Summary",
+        lbl_action: "Action Taken",
+        lbl_perf: "Agent Performance",
+        lbl_score: "Agent Score",
+        lbl_breakdown: "Score Breakdown",
+        lbl_criteria: "Criteria",
+        lbl_anomaly: "Anomaly Detected",
+        lbl_satisfaction: "Satisfaction Score",
+        btn_send_discord: "Send to Discord",
+        sending_discord: "Sending to Discord...",
+        discord_sent_ok: "Sent to Discord successfully!",
+        discord_sent_fail: "Failed to send to Discord: ",
+    }
+};
+
+let currentLang = localStorage.getItem('preferred_lang') || 'th';
+let customerData = [];
+let allFiles = [];
+let currentSelectedId = null;
+let activeFilteredFiles = null;
+let activeFilterPhone = null;
+let recordState = 'enabled';
+let currentActiveModalData = null;
+
+function switchLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('preferred_lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+            el.textContent = translations[lang][key];
+        }
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (translations[lang] && translations[lang][key]) {
+            el.placeholder = translations[lang][key];
+        }
+    });
+    document.getElementById('btn_lang_th').classList.toggle('active', lang === 'th');
+    document.getElementById('btn_lang_en').classList.toggle('active', lang === 'en');
+    
+    renderCustomerTable(customerData);
+    applyTimeFilter();
+}
+
+function updateRecordStateTabs() {
+    const enabledButton = document.getElementById('tab_enabled');
+    const disabledButton = document.getElementById('tab_disabled');
+    if (enabledButton) enabledButton.classList.toggle('active', recordState === 'enabled');
+    if (disabledButton) disabledButton.classList.toggle('active', recordState === 'disabled');
+
+    const enabledText = document.getElementById('tab_enabled_text');
+    const disabledText = document.getElementById('tab_disabled_text');
+    if (enabledText) enabledText.textContent = currentLang === 'th' ? 'เปิดใช้งาน' : 'Enable';
+    if (disabledText) disabledText.textContent = currentLang === 'th' ? 'ปิดใช้งาน' : 'Disable';
+}
+
+async function switchRecordState(state) {
+    if (!['enabled', 'disabled'].includes(state)) return;
+    recordState = state;
+    currentSelectedId = null;
+    activeFilteredFiles = null;
+    activeFilterPhone = null;
+
+    const badge = document.getElementById('filter-badge');
+    if (badge) badge.style.display = 'none';
+
+    const search = document.getElementById('searchInput');
+    if (search) search.value = '';
+
+    updateRecordStateTabs();
+    await Promise.all([loadCustomers(), loadFiles()]);
+}
+
+function normalizePhone(phone) {
+    let value = String(phone || '').replace(/[^0-9]/g, '');
+    if (value.startsWith('66') && value.length >= 11) value = `0${value.slice(2)}`;
+    return value;
+}
+
+function parseFileDateParts(f) {
+    let year = null, month = null;
+    if (f.filename) {
+        const m = f.filename.match(/(\d{4})(\d{2})\d{8}/);
+        if (m) {
+            year = m[1];
+            month = m[2];
+        }
+    }
+    if (!year && f.created_at) {
+        const d = new Date(f.created_at);
+        if (!isNaN(d.getTime())) {
+            year = String(d.getFullYear());
+            month = String(d.getMonth() + 1).padStart(2, '0');
+        }
+    }
+    return { year, month };
+}
+
+function extractDateTimeFromFilename(filename) {
+    if (!filename) return '—';
+    const match = filename.match(/(\d{14})/);
+    if (match) {
+        const dtStr = match[1];
+        const year = dtStr.substring(0, 4);
+        const month = dtStr.substring(4, 6);
+        const day = dtStr.substring(6, 8);
+        const hour = dtStr.substring(8, 10);
+        const minute = dtStr.substring(10, 12);
+        const second = dtStr.substring(12, 14);
+        return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+    }
+    return '—';
+}
+
+function updateYearDropdown(files) {
+    const yearSelect = document.getElementById('time_year');
+    if (!yearSelect) return;
+    
+    const currentVal = yearSelect.value || 'all';
+    let optionsHtml = `<option value="all">${currentLang === 'th' ? 'ทุกปี (All Years)' : 'All Years'}</option>`;
+
+    for (let y = 2060; y >= 2000; y--) {
+        optionsHtml += `<option value="${y}">${y}</option>`;
+    }
+
+    yearSelect.innerHTML = optionsHtml;
+
+    if (currentVal !== 'all' && currentVal >= 2000 && currentVal <= 2060) {
+        yearSelect.value = currentVal;
+    } else {
+        yearSelect.value = 'all';
+    }
+}
+
+function onQuarterChange() {
+    const quarter = document.getElementById('time_quarter').value;
+    if (quarter !== 'all') {
+        document.getElementById('time_month').value = 'all';
+    }
+    applyTimeFilter();
+}
+
+function onMonthChange() {
+    const month = document.getElementById('time_month').value;
+    if (month !== 'all') {
+        document.getElementById('time_quarter').value = 'all';
+    }
+    applyTimeFilter();
+}
+
+function applyTimeFilter() {
+    const year = document.getElementById('time_year').value;
+    const quarter = document.getElementById('time_quarter').value;
+    const month = document.getElementById('time_month').value;
+
+    let source = allFiles;
+    if (activeFilterPhone) {
+        source = allFiles.filter(f => normalizePhone(f.customer_phone) === activeFilterPhone);
+    }
+
+    const filtered = source.filter(f => {
+        const parts = parseFileDateParts(f);
+        if (!parts.year || !parts.month) return true;
+
+        if (year !== 'all' && parts.year !== year) return false;
+        if (month !== 'all' && parts.month !== month) return false;
+
+        if (quarter !== 'all') {
+            const m = parseInt(parts.month, 10);
+            if (quarter === 'Q1' && !(m >= 1 && m <= 3)) return false;
+            if (quarter === 'Q2' && !(m >= 4 && m <= 6)) return false;
+            if (quarter === 'Q3' && !(m >= 7 && m <= 9)) return false;
+            if (quarter === 'Q4' && !(m >= 10 && m <= 12)) return false;
+        }
+
+        return true;
+    });
+
+    activeFilteredFiles = filtered;
+    renderAnalysesTable(filtered);
+}
+
+function checkAuth() {
+    const agentCode = localStorage.getItem('agent_code');
+    const firstname = localStorage.getItem('firstname');
+    const role = localStorage.getItem('role');
+    const position = localStorage.getItem('position');
+
+    if (!agentCode) {
+        window.location.href = '/';
+        return;
+    }
+
+    const displayRole = role === 'supervisor' ? 'Supervisor / หัวหน้า' : (role === 'it' ? 'Manager / หัวหน้างาน' : 'Staff / พนักงาน');
+
+    document.getElementById('sidebar_username').innerText = firstname || agentCode;
+    document.getElementById('sidebar_position').innerText = position || (role === 'supervisor' ? 'Call Center Supervisor' : 'Call Center Agent');
+    document.getElementById('sidebar_role').innerText = displayRole;
+
+    document.getElementById('topbar_username').innerText = firstname || agentCode;
+    document.getElementById('topbar_role').innerText = displayRole;
+
+    syncPermissionMenus();
+}
+
+function syncPermissionMenus(){
+    fetch('/api/me',{cache:'no-store'}).then(response=>response.ok?response.json():null).then(me=>{
+        const permissions=me?.permissions||{};
+        for(const [id,key] of [['menu_upload','upload_audio'],['menu_employees_it','view_agents'],['permission_matrix_menu','view_permissions'],['system_settings_menu','view_permissions']]){
+            const menu=document.getElementById(id);
+            if(menu)menu.style.display=permissions[key]?'':'none';
+        }
+    }).catch(()=>{});
+}
+
+async function handleSignOut() {
+    try {
+        await fetch('/api/logout', { method: 'POST' });
+    } catch (err) {
+        console.error('Logout error:', err);
+    } finally {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace('/');
+    }
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+    checkAuth();
+    switchLanguage(currentLang);
+    updateRecordStateTabs();
+    await loadCustomers();
+    await loadFiles();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetCaseId = urlParams.get('open_case');
+    if (targetCaseId) {
+        setTimeout(() => {
+            openModal(new Event('click'), parseInt(targetCaseId));
+        }, 300);
+    }
+
+    setInterval(loadCustomers, 5000);
+    setInterval(loadFiles, 5000);
+});
+
+async function loadCustomers() {
+    try {
+        const res = await fetch(`/api/customers?state=${recordState}`);
+        if (!res.ok) throw new Error('Unable to load customers');
+        const raw = await res.json();
+
+        const seen = new Map();
+        raw.forEach(c => {
+            const phone = c.customer_phone || '';
+            if (!phone || phone === 'Unknown') return;
+            if (!seen.has(phone)) { seen.set(phone, c); return; }
+            const existing = seen.get(phone);
+            if (c.firstname && String(c.firstname).trim() && (!existing.firstname || !String(existing.firstname).trim())) {
+                seen.set(phone, c);
+            }
+        });
+
+        customerData = Array.from(seen.values());
+        renderCustomerTable(customerData);
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function renderCustomerTable(data) {
+    const tbody = document.getElementById("customerTableBody");
+    const countEl = document.getElementById("customerCount");
+    if (countEl) countEl.textContent = data.length ? `${data.length} customers` : '';
+    if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-3); padding:28px;">No customers found</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = data.map(c => {
+        const isCaseDisabled = (recordState === 'disabled' || c.status === 'disabled' || c.is_active === false);
+        const actionStatusText = isCaseDisabled 
+            ? (currentLang === 'th' ? 'เปิดใช้งาน' : 'Enable') 
+            : (currentLang === 'th' ? 'ปิดใช้งาน' : 'Disable');
+        const targetStatus = isCaseDisabled ? 'enabled' : 'disabled';
+        const recordId = c.id || 0;
+
+        return `
+        <tr>
+            <td><div style="font-weight:700; color:#fff;">${c.firstname || 'Unknown'} ${c.lastname || ''}</div></td>
+            <td style="font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--text-2);">${c.customer_phone || '—'}</td>
+            <td style="color:var(--text-2); font-family:'JetBrains Mono',monospace;">${c.age || '—'}</td>
+            <td style="color:var(--text-2); font-family:'JetBrains Mono',monospace;">${c.end_date || c.warranty_end_date || '—'}</td>
+            <td>
+                <div style="display:flex; gap:8px; align-items:center; justify-content:flex-end;">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="filterAnalysesByPhone('${c.customer_phone}')">View History</button>
+                    <a class="btn btn-outline btn-sm" href="/warranty/${recordId}" target="_blank">Warranty</a>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="toggleCaseStatus(event, ${recordId}, '${targetStatus}', '${c.customer_phone}')">${actionStatusText}</button>
+                </div>
+            </td>
+        </tr>
+        `;
+    }).join('');
+}
+
+function filterCustomers() {
+    const term = document.getElementById("searchInput").value.toLowerCase().trim();
+    if (!term) { renderCustomerTable(customerData); return; }
+    const filtered = customerData.filter(c =>
+        (c.firstname  && c.firstname.toLowerCase().includes(term))  ||
+        (c.lastname   && c.lastname.toLowerCase().includes(term))   ||
+        (c.customer_phone && c.customer_phone.includes(term))
+    );
+    renderCustomerTable(filtered);
+}
+
+async function loadFiles() {
+    try {
+        const res = await fetch(`/files?state=${recordState}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(translations[currentLang].err_load_analysis);
+        allFiles = await res.json();
+
+        if (currentActiveModalData) {
+            const latest = allFiles.find(file => Number(file.id) === Number(currentActiveModalData.id));
+            if (latest) {
+                const assignee = document.getElementById('modal_assign_agent');
+                const unchanged = assignee?.value === (currentActiveModalData.assigned_agent_code || '');
+                currentActiveModalData = { ...currentActiveModalData, ...latest };
+                if (assignee && unchanged) assignee.value = latest.assigned_agent_code || '';
+            }
+        }
+
+        updateYearDropdown(allFiles);
+        applyTimeFilter();
+
+        if (allFiles.length > 0 && !currentSelectedId) {
+            let initialFile = allFiles[0];
+            if (activeFilterPhone) {
+                const matched = allFiles.find(f => normalizePhone(f.customer_phone) === activeFilterPhone);
+                if (matched) initialFile = matched;
+            }
+            loadDetail(initialFile.id, initialFile.customer_phone, initialFile.filename);
+        }
+    } catch(e) {
+        console.error(e);
+    }
+}
+
+function renderAnalysesTable(files) {
+    const tbody = document.getElementById('fileListBody');
+    if (!files.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-3); padding:28px;">No analysis records found</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = files.map(f => {
+        const isActive = f.id === currentSelectedId;
+        const status = ['done', 'enabled'].includes(f.status)
+            ? '<span class="status-tag status-done">Complete</span>'
+            : (f.status === 'in_progress'
+                ? `<span class="status-tag status-progress">${translations[currentLang].accepted_work}</span>`
+            : (f.status === 'failed'
+                ? '<span class="status-tag" style="background:rgba(255,133,152,.15); color:var(--red);">Failed</span>'
+                : (f.status === 'disabled' ? '<span class="status-tag" style="background:rgba(255,201,115,.15); color:var(--amber);">Disabled</span>' : '<span class="status-tag status-proc">Processing</span>')));
+        
+        const scoreVal = f.sentiment_score || 0;
+        const scoreColor = scoreVal >= 60 ? 'var(--green)' : (scoreVal > 0 ? 'var(--red)' : 'var(--text-3)');
+        const extractedTime = extractDateTimeFromFilename(f.filename);
+        return `<tr class="clickable ${isActive ? 'active-row' : ''}" onclick="loadDetail(${f.id}, '${f.customer_phone || ''}', '${f.filename}')">
+            <td>
+                <div style="font-weight:700; font-size:15px; color:#fff;">${f.firstname ? `${f.firstname}${f.lastname || ''}` : f.filename}</div>
+                <div style="font-size:12px; color:var(--text-3); font-family:'JetBrains Mono',monospace; margin-top:3px; font-weight:500;">${f.customer_phone || 'Unknown'} • ${f.brand || 'Unknown'}</div>
+                ${f.assigned_agent_code ? `<div style="font-size:12px; color:var(--primary); margin-top:3px;">${translations[currentLang].assigned_to} ${f.assigned_agent_code}</div>` : ''}
+            </td>
+            <td style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--text-2);">${extractedTime}</td>
+            <td style="color:var(--text-2); font-weight:600;">${f.direction || 'Unknown'}</td>
+            <td>${status}</td>
+            <td><span class="score-pill" style="color:${scoreColor}">${scoreVal} / 100</span></td>
+            <td class="action-cell">
+                <button class="btn btn-outline btn-sm" onclick="openModal(event, ${f.id})">View</button>
+                <button class="btn btn-outline btn-sm" onclick="transferCase(event, ${f.id})">Transfer</button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function filterAnalysesByPhone(phone) {
+    if (!phone || phone === 'Unknown') return;
+    const selectedPhone = normalizePhone(phone);
+    activeFilterPhone = selectedPhone;
+
+    const badge = document.getElementById('filter-badge');
+    const badgeText = document.getElementById('filter-badge-text');
+    const name = customerData.find(c => normalizePhone(c.customer_phone) === selectedPhone);
+    const label = name ? `${name.firstname || ''} ${name.lastname || ''}`.trim() || phone : phone;
+    
+    badgeText.textContent = `${label}`;
+    badge.style.display = 'inline-flex';
+
+    applyTimeFilter();
+    loadCustomerHistory(selectedPhone);
+
+    const targetFile = allFiles.find(f => normalizePhone(f.customer_phone) === selectedPhone);
+    if (targetFile) {
+        loadDetail(targetFile.id, targetFile.customer_phone, targetFile.filename);
+    }
+
+    setTimeout(() => {
+        document.getElementById('analyses-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+}
+
+function clearPhoneFilter() {
+    activeFilterPhone = null;
+    document.getElementById('filter-badge').style.display = 'none';
+    applyTimeFilter();
+
+    if (allFiles.length > 0) {
+        loadDetail(allFiles[0].id, allFiles[0].customer_phone, allFiles[0].filename);
+    }
+}
+
+async function toggleCaseStatus(event, id, status, phone) {
+    if (event) event.stopPropagation();
+    try {
+        const response = await fetch(`/api/cases/${id}/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                status: status,
+                phone: phone || ''
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            alert(error.detail || 'Unable to update status');
+            return;
+        }
+
+        await Promise.all([loadCustomers(), loadFiles()]);
+    } catch (err) {
+        console.error('Toggle status error:', err);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+    }
+}
+
+async function transferCase(event, id) {
+    event.stopPropagation();
+    const assignedAgentCode = prompt('Enter destination agent code:');
+    if (!assignedAgentCode) return;
+    const response = await fetch(`/api/cases/${id}/transfer`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ assigned_agent_code: assignedAgentCode.trim() })
+    });
+    const data = await response.json();
+    if (!response.ok) alert(data.detail || 'Unable to transfer case');
+    else loadFiles();
+}
+
+function exportCsv() {
+    const params = new URLSearchParams();
+    if (activeFilterPhone) params.set('phone', activeFilterPhone);
+    window.location.href = `/export/csv?${params.toString()}`;
+}
+
+// โหลดรายละเอียดเคสโดยดึงข้อมูลเดิมมาแสดงเสมอ ไม่ว่าสถานะจะเป็น active หรือ disabled
+async function loadDetail(id, phone, filename) {
+    document.getElementById('summary_text').innerHTML = `<div class="placeholder">Loading summary...</div>`;
+    document.getElementById('chat_display').innerHTML = `<div class="placeholder">Loading conversation...</div>`;
+    document.getElementById('history_box').innerHTML = `<div class="placeholder">Loading history...</div>`;
+    currentSelectedId = id;
+    applyTimeFilter();
+
+    document.getElementById('audio_placeholder').style.display = 'none';
+    document.getElementById('player_wrapper').style.display = 'block';
+    document.getElementById('audio_filename').innerText = filename;
+    document.getElementById('audio_source').src = `/download/${id}`;
+    document.getElementById('main_audio_player').load();
+
+    try {
+        const res = await fetch(`/status/${id}`);
+        const data = await res.json();
+        
+        // ถ้าไฟล์ไม่มีข้อมูลสรุปและยังอยู่ในคิวรันประมวลผลจริงเท่านั้น ถึงจะขึ้น Processing
+        const isRunning = ['pending', 'processing'].includes(data.processing_status);
+        if (isRunning && !data.summary && !data.conversation_json) {
+            document.getElementById('summary_text').innerHTML = `<div class="placeholder">Processing audio...</div>`;
+            document.getElementById('chat_display').innerHTML = `<div class="placeholder">Analyzing...</div>`;
+            return;
+        }
+
+        // แสดงผลข้อมูลสรุปเดิมที่มีอยู่ในระบบทันที
+        document.getElementById('summary_text').innerHTML = `
+            <div style="font-size:12px; font-weight:800; color:var(--text-3); text-transform:uppercase; letter-spacing:.12em; margin-bottom:10px;">Key Points</div>
+            <p style="color:var(--text); line-height:1.75; font-weight:500;">${data.summary || 'No summary available'}</p>
+        `;
+
+        // แสดงผลบทสนทนาเดิมที่มีอยู่
+        let convo = data.conversation_json || [];
+        if (typeof convo === 'string') {
+            try { convo = JSON.parse(convo); } catch(e) { convo = []; }
+        }
+        renderChat(convo);
+        
+        const effectivePhone = phone || data.customer_phone;
+        loadCustomerHistory(effectivePhone);
+    } catch(e) { 
+        console.error("Load detail error:", e); 
+    }
+}
+
+async function loadCustomerHistory(phone) {
+    const box = document.getElementById('history_box');
+    if (!phone || phone === 'Unknown') {
+        box.innerHTML = `<div class="placeholder">${currentLang === 'th' ? 'ไม่มีเบอร์โทรศัพท์ในระบบ' : 'No phone number on record'}</div>`;
+        return;
+    }
+    const normalizedPhone = normalizePhone(phone);
+    try {
+        const res = await fetch(`/api/history/${encodeURIComponent(normalizedPhone)}`);
+        let history = await res.json();
+
+        if (recordState === 'disabled') {
+            history = history.filter(item => item.is_active === false || item.status === 'disabled');
+        } else {
+            history = history.filter(item => item.is_active !== false && item.status !== 'disabled');
+        }
+
+        if (!history || !history.length) {
+            box.innerHTML = `<div class="placeholder">${currentLang === 'th' ? 'ไม่พบประวัติลูกค้า' : 'No customer history found'}</div>`;
+            return;
+        }
+
+        const profile = history.find(h => {
+            const fn = (h.firstname || '').trim();
+            return fn && fn !== '-' && fn !== 'Unknown' && !fn.startsWith('Lotus') && !fn.startsWith('Omazz');
+        }) || history[0];
+
+        const hasRealName = profile.firstname && profile.firstname.trim() !== '-' && profile.firstname.trim() !== 'Unknown' && !profile.firstname.startsWith('Lotus') && !profile.firstname.startsWith('Omazz');
+        const defaultLabel = (profile.brand && profile.brand !== 'Unknown') ? profile.brand : (currentLang === 'th' ? 'ลูกค้า' : 'Customer');
+        const displayName = hasRealName 
+            ? `${profile.firstname} ${profile.lastname || ''}`.trim() 
+            : `${defaultLabel} (${normalizedPhone.slice(-4)})`;
+
+        const t = currentLang === 'th' ? {
+            phone: "เบอร์โทรศัพท์",
+            expiry: "วันหมดอายุการรับประกัน",
+            address: "ที่อยู่",
+            records: "ประวัติการติดต่อ",
+            noIssue: "ไม่มีข้อมูลประเด็นปัญหา"
+        } : {
+            phone: "Phone",
+            expiry: "Policy Expiry",
+            address: "Address",
+            records: "Contact Records",
+            noIssue: "No topic recorded"
+        };
+
+        let html = `
+            <div class="profile-card">
+                <div class="profile-name">${displayName}</div>
+                <div class="profile-meta">
+                    ${t.phone}: ${normalizedPhone}<br>
+                    ${t.expiry}: ${profile.end_date || profile.warranty_end_date || '—'}<br>
+                    ${t.address}: ${profile.address || '—'}
+                </div>
+            </div>
+            <div style="font-size:12px; font-weight:800; color:var(--text-3); text-transform:uppercase; letter-spacing:.12em; margin-bottom:10px;">
+                ${history.length} ${t.records}
+            </div>`;
+
+        history.forEach(item => {
+            const date = item.created_at ? new Date(item.created_at).toLocaleDateString('en-GB') : '—';
+            const rawScore = item.sentiment_score || 0;
+            const score100 = rawScore <= 5 && rawScore > 0 ? Math.round(rawScore * 20) : Math.round(rawScore);
+            const scoreColor = score100 >= 60 ? 'var(--green)' : (score100 > 0 ? 'var(--red)' : 'var(--text-3)');
+            
+            html += `
+                <div class="history-item" onclick="loadDetail(${item.id}, '${item.customer_phone || ''}', '${item.filename || ''}')">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div class="history-date">${date}</div>
+                        <span style="color:${scoreColor}; font-weight:700; font-size:13px; font-family:'JetBrains Mono',monospace;">${score100}/100</span>
+                    </div>
+                    <div class="history-issue">${item.issue || t.noIssue}</div>
+                </div>`;
+        });
+        box.innerHTML = html;
+    } catch(e) {
+        console.error(e);
+        box.innerHTML = `<div class="placeholder" style="color:var(--red);">${currentLang === 'th' ? 'เกิดข้อผิดพลาดในการโหลดประวัติ' : 'Error loading history'}</div>`;
+    }
+}
+
+function renderChat(convo) {
+    const el = document.getElementById('chat_display');
+    if (!convo.length) { el.innerHTML = `<div class="placeholder">No conversation data</div>`; return; }
+    el.innerHTML = '';
+    convo.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'msg ' + (c.speaker === 'พนักงาน' || c.speaker === 'Agent' ? 'agent' : 'customer');
+        div.innerHTML = `<b style="font-size:11px; font-weight:800; display:block; margin-bottom:4px; opacity:.8; text-transform:uppercase; letter-spacing:.06em;">${c.speaker}</b>${c.text}`;
+        el.appendChild(div);
+    });
+    el.scrollTop = el.scrollHeight;
+}
+
+async function openModal(e, id) {
+    e.stopPropagation();
+    document.getElementById('resultModal').style.display = 'block';
+    document.getElementById('modalBody').innerHTML = `<div class="placeholder" style="height:200px;">Loading...</div>`;
+
+    try {
+        const res = await fetch(`/status/${id}`);
+        if (!res.ok) throw new Error(translations[currentLang].err_load_modal || 'Error loading details');
+        const data = await res.json();
+        currentActiveModalData = data;
+
+        let agentOptions = '<option value="">-- ยังไม่ระบุ (รอรับงาน) --</option>';
+        try {
+            const agRes = await fetch('/api/transfer-targets');
+            if (agRes.ok) {
+                const agents = await agRes.json();
+                agentOptions += agents.map(a => 
+                    `<option value="${a.agent_code}" ${data.assigned_agent_code === a.agent_code ? 'selected' : ''}>${a.firstname} ${a.lastname} (${a.agent_code}) [${a.role}]</option>`
+                ).join('');
+            }
+        } catch(err) {
+            console.error("Failed to load agents:", err);
+        }
+
+        const rawAgentScore = parseFloat(data.agent_score) || 0;
+        const agentScore100 = rawAgentScore <= 5.0 ? Math.round(rawAgentScore * 20) : Math.round(rawAgentScore);
+        
+        const scoreColor = agentScore100 >= 70 ? 'var(--green)' : (agentScore100 >= 50 ? 'var(--amber)' : 'var(--red)');
+        const scoreBg = agentScore100 >= 70 ? 'rgba(62,223,155,.15)' : (agentScore100 >= 50 ? 'rgba(255,201,115,.15)' : 'rgba(255,133,152,.15)');
+
+        const satScore = data.sentiment_score || 0;
+        const satColor = satScore >= 60 ? 'var(--green)' : 'var(--amber)';
+        const satBg = satScore >= 60 ? 'rgba(62,223,155,.15)' : 'rgba(255,201,115,.15)';
+
+        const t = currentLang === 'th' ? {
+            title: "รายงานการวิเคราะห์",
+            brand: "แบรนด์",
+            customer: "ลูกค้า",
+            issue: "ประเด็นปัญหา",
+            summary: "สรุปเนื้อหา",
+            action: "การดำเนินการ",
+            perf: "ผลการปฏิบัติงานของพนักงาน",
+            agentScore: "คะแนนพนักงาน (Agent Score)",
+            anomaly: "พบสิ่งผิดปกติ",
+            satisfaction: "คะแนนความพึงพอใจ (Satisfaction Score)",
+            anomalyYes: "พบ — ",
+            anomalyNo: "ไม่พบ",
+            noRating: "ไม่มีการระบุการประเมิน",
+            noSummary: "ไม่มีข้อมูลสรุป",
+            unknown: "ไม่ระบุ"
+        } : {
+            title: "Analysis Report",
+            brand: "Brand",
+            customer: "Customer",
+            issue: "Issue Topic",
+            summary: "Summary",
+            action: "Action Taken",
+            perf: "Agent Performance",
+            agentScore: "Agent Score",
+            anomaly: "Anomaly Detected",
+            satisfaction: "Satisfaction Score",
+            anomalyYes: "Yes — ",
+            anomalyNo: "No",
+            noRating: "No rating available",
+            noSummary: "No summary available",
+            unknown: "Unknown"
+        };
+
+        const anomalyText = data.anomaly_flag === 'yes'
+            ? t.anomalyYes + (data.anomaly_reason || '')
+            : t.anomalyNo;
+
+        document.getElementById('modalBody').innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-right:40px; flex-wrap:wrap; gap:12px;">
+                <div class="modal-title" style="margin-bottom:0;">${t.title}</div>
+                <button type="button" id="modal_discord_btn" class="btn-discord" onclick="sendModalReportToDiscord()">
+                    <span>✈️</span>
+                    <span id="modal_discord_btn_text">${translations[currentLang].btn_send_discord}</span>
+                </button>
+            </div>
+
+            <div class="modal-field">
+                <label>👤 มอบหมายเคสให้ (Assignee)</label>
+                <select id="modal_assign_agent" class="filter-select" style="width: 100%; margin-top: 6px; padding: 10px 14px; font-size: 14px;">
+                    ${agentOptions}
+                </select>
+            </div>
+            
+            <div class="modal-field"><label>${t.brand}</label><p>${data.brand || t.unknown}</p></div>
+            <div class="modal-field"><label>${t.customer}</label><p>${data.firstname || '—'} ${data.lastname || ''}</p></div>
+            <div class="modal-field"><label>${t.issue}</label><p>${data.issue || '—'}</p></div>
+            <div class="modal-field"><label>${t.summary}</label><p>${data.summary || t.noSummary}</p></div>
+            <div class="modal-field"><label>${t.action}</label><p style="color:var(--green);">${data.action_taken || '—'}</p></div>
+            <div class="modal-field"><label>${t.perf}</label><p>${data.agent_performance_comment || t.noRating}</p></div>
+            <div class="modal-field">
+                <label>${t.agentScore}</label>
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                    <div class="modal-score" style="background:${scoreBg}; color:${scoreColor};">${agentScore100} / 100</div>
+                </div>
+            </div>
+            <div class="modal-field"><label>${t.anomaly}</label><p>${anomalyText}</p></div>
+            <div class="modal-field"><label>${t.satisfaction}</label><div class="modal-score" style="background:${satBg}; color:${satColor};">${satScore} / 100</div></div>
+        `;
+    } catch (error) {
+        document.getElementById('modalBody').innerHTML = `<div class="placeholder" style="height:200px; color:var(--red);">${error.message}</div>`;
+    }
+}
+
+async function sendModalReportToDiscord() {
+    if (!currentActiveModalData) {
+        alert("⚠️ ไม่พบข้อมูลสำหรับส่งเข้า Discord");
+        return;
+    }
+
+    const btn = document.getElementById("modal_discord_btn");
+    const btnText = document.getElementById("modal_discord_btn_text");
+    const selectEl = document.getElementById("modal_assign_agent");
+
+    const rawAgentScore = parseFloat(currentActiveModalData.agent_score) || 0;
+    const scoreVal = rawAgentScore <= 5.0 ? Math.round(rawAgentScore * 20) : Math.round(rawAgentScore);
+
+    const customerName = `${currentActiveModalData.firstname || ''} ${currentActiveModalData.lastname || ''}`.trim();
+    const customerInfo = customerName || currentActiveModalData.customer_phone || "-";
+
+    const selectedAgentCode = selectEl ? selectEl.value : "";
+    const selectedOption = selectEl && selectEl.selectedIndex >= 0 ? selectEl.options[selectEl.selectedIndex] : null;
+    const assignedToText = (selectedOption && selectedAgentCode) ? selectedOption.text : "ยังไม่ระบุ (รอรับงาน)";
+
+    const payload = {
+        file_id: currentActiveModalData.id,
+        brand: currentActiveModalData.brand || "Unknown",
+        customer: customerInfo,
+        issue: currentActiveModalData.issue || "-",
+        summary: currentActiveModalData.summary || "-",
+        action_taken: currentActiveModalData.action_taken || "-",
+        score: `${scoreVal}/100`,
+        assigned_to: assignedToText,
+        assigned_agent_code: selectedAgentCode
+    };
+
+    try {
+        if (btn) btn.disabled = true;
+        if (btnText) btnText.textContent = translations[currentLang].sending_discord;
+
+        const res = await fetch('/api/cases/send-discord-direct', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+            if (btnText) btnText.textContent = "✅ Sent";
+            alert(translations[currentLang].discord_sent_ok);
+            loadFiles();
+        } else {
+            if (btn) btn.disabled = false;
+            if (btnText) btnText.textContent = translations[currentLang].btn_send_discord;
+            alert(translations[currentLang].discord_sent_fail + (result.detail || "Error"));
+        }
+    } catch (e) {
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.textContent = translations[currentLang].btn_send_discord;
+        alert("❌ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
+    }
+}
+
+function closeModal() { 
+    document.getElementById('resultModal').style.display = 'none'; 
+    currentActiveModalData = null;
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script id="omazz-three-bg">
+(function(){
+  if(!window.THREE||window.__omazzThreeStarted)return;
+  window.__omazzThreeStarted=true;
+  const canvas=document.getElementById('scene-bg');
+  if(!canvas)return;
+  try{
+    const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.25));
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    const scene=new THREE.Scene();
+    const camera=new THREE.PerspectiveCamera(55,window.innerWidth/window.innerHeight,.1,1000);
+    camera.position.z=70;
+    const count=1100, positions=new Float32Array(count*3);
+    for(let i=0;i<positions.length;i+=3){positions[i]=(Math.random()-.5)*190;positions[i+1]=(Math.random()-.5)*130;positions[i+2]=(Math.random()-.5)*120;}
+    const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));
+    const material=new THREE.PointsMaterial({color:0x82b4ff,size:.55,transparent:true,opacity:.72,blending:THREE.AdditiveBlending,depthWrite:false});
+    const particles=new THREE.Points(geometry,material);scene.add(particles);
+    const torus=new THREE.Mesh(new THREE.TorusGeometry(16,.14,16,150),new THREE.MeshBasicMaterial({color:0x8588ff,transparent:true,opacity:.14}));
+    torus.rotation.x=1.18;torus.position.set(24,-7,-30);scene.add(torus);
+    const torus2=torus.clone();torus2.scale.set(1.55,1.55,1.55);torus2.material=torus.material.clone();torus2.material.opacity=.07;torus2.position.z=-38;scene.add(torus2);
+    let mx=0,my=0;window.addEventListener('mousemove',e=>{mx=(e.clientX/window.innerWidth-.5)*2;my=(e.clientY/window.innerHeight-.5)*2;},{passive:true});
+    let lastFrame=0; function animate(timestamp){requestAnimationFrame(animate);if(timestamp-lastFrame<33||document.hidden)return;lastFrame=timestamp;particles.rotation.y+=.0007;particles.rotation.x+=.0002;torus.rotation.z+=.0022;torus2.rotation.z-=.0014;camera.position.x+=((mx*2.5)-camera.position.x)*.025;camera.position.y+=((-my*1.5)-camera.position.y)*.025;camera.lookAt(scene.position);renderer.render(scene,camera);}animate();
+    window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);},{passive:true});
+  }catch(err){console.warn('Three.js background unavailable:',err);}
+})();
+</script>
+</body>
+</html>
