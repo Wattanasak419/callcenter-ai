@@ -516,10 +516,10 @@ def _required_permission(path: str, method: str) -> str | None:
     if path.startswith(("/api/agents", "/api/employees")):
         return "view_agents" if method == "GET" else "manage_agents"
     if path.startswith("/api/cases/") and path.endswith("/status"):
-        return None  # ปลดล็อกให้สลับเปิด/ปิดสถานะได้
+        return None
     if path.startswith(("/api/cases/", "/api/transfer-targets")) and path.endswith("/transfer"):
         return "transfer_cases"
-    if path.startswith(("/customers", "/warranty", "/api/customers", "/api/history/", "/status/", "/download/", "/export/")):
+    if path.startswith(("/customers", "/warranty", "/api/customers", "/api/history/", "/api/warranties", "/status/", "/download/", "/export/")):
         return "view_customers"
     return None
 
@@ -749,7 +749,6 @@ def warranty_default_page():
     return _render_template("warranty.html")
 
 
-# 🛠️ Warranty Page Renderer: แทนที่ค่าตัวแปรลงใน HTML โดยตรง
 @app.get("/warranty/{item_id}", response_class=HTMLResponse)
 def get_warranty_page(item_id: int, db: Session = Depends(get_db)):
     rec = db.query(CallRecord).filter(CallRecord.id == item_id).first()
@@ -763,7 +762,6 @@ def get_warranty_page(item_id: int, db: Session = Depends(get_db)):
     with open(file_path, "r", encoding="utf-8") as f:
         html_content = f.read()
 
-    # --- 1. คลังชื่อ 20 ชื่อ, นามสกุล 20 นามสกุล และเบอร์โทร 20 เบอร์ สำหรับสุ่มเมื่อไม่มีข้อมูล ---
     firstnames_pool = [
         "กิตติศักดิ์", "วิภาดา", "ธนพล", "นภัสสร", "ศิริพร",
         "ชลธิชา", "ปิยะพงษ์", "อัญชลี", "วรวุฒิ", "กานดา",
@@ -783,7 +781,6 @@ def get_warranty_page(item_id: int, db: Session = Depends(get_db)):
         "0967890123", "0978901234", "0989012345", "0990123456", "0901234567"
     ]
 
-    # --- ตรวจสอบชื่อลูกค้า ---
     fname = getattr(rec, "firstname", None)
     lname = getattr(rec, "lastname", None)
     cust_name = getattr(rec, "customer_name", None)
@@ -800,17 +797,14 @@ def get_warranty_page(item_id: int, db: Session = Depends(get_db)):
     if not lname or str(lname).strip() in ["-", "", "None"]:
         lname = lastnames_pool[(rec.id * 2) % len(lastnames_pool)]
 
-    # --- ตรวจสอบเบอร์โทรศัพท์ ---
     phone = (getattr(rec, "customer_phone", "") or "").replace("-", "").strip()
     if not phone or phone in ["-", "", "None", "Unknown"]:
         phone = phones_pool[rec.id % len(phones_pool)]
-        
-    # --- 2. ค้นหาประวัติสายและแบรนด์ ---
-    phone = (rec.customer_phone or "").replace("-", "").strip()
+
     history = []
     if phone:
         history = db.query(CallRecord).filter(CallRecord.customer_phone.like(f"%{phone}%")).all()
-    
+
     total_calls = len(history) if history else 1
 
     all_text = ""
@@ -833,23 +827,8 @@ def get_warranty_page(item_id: int, db: Session = Depends(get_db)):
         else:
             detected_brand = "Lotus" if (rec.id % 2 == 0) else "Omazz"
 
-    # --- 3. คลังสินค้า / รุ่นสำหรับสุ่มแยกตามแบรนด์ ---
-    omazz_models = [
-        "Fairmont",
-        "Grand Frank Monte",
-        "Falcohn",
-        "Frank Monte",
-        "Earth Eco",
-        "Fanthom"
-    ]
-    lotus_models = [
-        "Royal California",
-        "O-Season I",
-        "Stella",
-        "Nature Touch",
-        "Marshall Deluxe",
-        "Euphoria"
-    ]
+    omazz_models = ["Fairmont", "Grand Frank Monte", "Falcohn", "Frank Monte", "Earth Eco", "Fanthom"]
+    lotus_models = ["Royal California", "O-Season I", "Stella", "Nature Touch", "Marshall Deluxe", "Euphoria"]
 
     product_name_val = getattr(rec, "product_name", None)
     if not product_name_val or str(product_name_val).strip() in ["-", "", "None", "ที่นอนสปริง Omazz", "ที่นอนสปริง Lotus", "ที่นอน Lotus (มาตรฐาน)"]:
@@ -858,7 +837,6 @@ def get_warranty_page(item_id: int, db: Session = Depends(get_db)):
         else:
             product_name_val = lotus_models[rec.id % len(lotus_models)]
 
-    # --- 4. วันที่และระยะเวลารับประกัน ---
     w_start = getattr(rec, "start_date", None) or getattr(rec, "purchase_date", None) or "2022-12-01"
     w_end = _warranty_end(rec) or getattr(rec, "warranty_end_date", None) or getattr(rec, "end_date", None) or "2032-12-01"
     purchase_date_val = getattr(rec, "purchase_date", None) or w_start
@@ -873,7 +851,6 @@ def get_warranty_page(item_id: int, db: Session = Depends(get_db)):
         except Exception:
             duration_val = "10 ปี"
 
-    # --- 5. Serial Number และ ผู้รับผิดชอบเคส ---
     serial_val = getattr(rec, "serial_number", None)
     if not serial_val or str(serial_val).strip() in ["-", "", "None"]:
         last_digits = phone[-4:] if len(phone) >= 4 else f"{rec.id:04d}"
@@ -884,13 +861,10 @@ def get_warranty_page(item_id: int, db: Session = Depends(get_db)):
         agents_pool = ["AGT-101", "AGT-102", "AGT-201", "AGT-204", "EMP001", "EMP003"]
         agent_val = agents_pool[rec.id % len(agents_pool)]
 
-    # --- 6. สถานะและเงื่อนไข ---
-    w_status = "active"
     status_badge = "อยู่ในประกัน"
     if w_end and w_end != "-":
         parsed = _parse_date(w_end)
         if parsed and parsed < date.today():
-            w_status = "expired"
             status_badge = "หมดประกัน"
 
     w_number = getattr(rec, "warranty_number", None) or f"WR-{rec.id:06d}"
@@ -907,7 +881,6 @@ def get_warranty_page(item_id: int, db: Session = Depends(get_db)):
 
     created_date = str(rec.created_at)[:10] if getattr(rec, "created_at", None) else str(w_start)
 
-    # --- 7. แทนที่ค่าลงใน HTML ---
     replacements = {
         "{{ record.warranty_number or ('WR-' ~ '%06d'|format(record.id)) }}": w_number,
         "{{ record.warranty_number or ('WR-' ~ '%06d' | format(record.id)) }}": w_number,
@@ -939,6 +912,7 @@ def get_warranty_page(item_id: int, db: Session = Depends(get_db)):
 
     html_content = re.sub(r"\{\%.*?\%\}", "", html_content)
     return HTMLResponse(content=html_content)
+
 
 @app.get("/add-customer", response_class=HTMLResponse)
 @app.get("/add_customer", response_class=HTMLResponse)
@@ -1009,6 +983,7 @@ async def update_permissions(request: Request):
 @app.get("/api/system-settings")
 def get_system_settings():
     return load_system_settings()
+
 
 @app.put("/api/system-settings")
 @app.post("/api/system-settings")
@@ -1244,7 +1219,6 @@ def create_agent(data: AgentCreate, db: Session = Depends(get_db)):
     return {"status": "success", "agent_code": row.agent_code}
 
 
-# 🛠️ ปรับให้รองรับทั้ง PUT, POST และ Map ค่าภาษาไทยเป็น role จริงในระบบ
 @app.put("/api/agents/{agent_code}/role")
 @app.put("/api/employees/{agent_code}/role")
 @app.post("/api/agents/{agent_code}/role")
@@ -1257,7 +1231,6 @@ async def update_role(agent_code: str, request: Request, db: Session = Depends(g
 
     raw_role = str(body.get("role", "")).strip().lower()
 
-    # ตารางเทียบค่าภาษาไทยและชื่อเรียกต่างๆ แปลงกลับเป็นคีย์ฐานข้อมูล
     role_map = {
         "staff": "staff",
         "พนักงาน": "staff",
@@ -1279,14 +1252,12 @@ async def update_role(agent_code: str, request: Request, db: Session = Depends(g
     if not target:
         raise HTTPException(status_code=404, detail="ไม่พบพนักงานในระบบ")
 
-    # บันทึก Role ใหม่
     target.role = new_role
     db.commit()
     db.refresh(target)
     return {"status": "success", "agent_code": agent_code, "role": new_role}
 
 
-# 🛠️ ปรับปุ่ม Disable/Enable รองรับทั้ง PUT, POST และเปิด/ปิดได้จริง
 @app.put("/api/agents/{agent_code}/status")
 @app.put("/api/employees/{agent_code}/status")
 @app.post("/api/agents/{agent_code}/status")
@@ -1305,7 +1276,6 @@ async def update_agent_status(agent_code: str, request: Request, db: Session = D
     if not target:
         raise HTTPException(status_code=404, detail="ไม่พบพนักงานในระบบ")
 
-    # ถ้าไม่มีค่าส่งมา ให้สลับสถานะจากเดิมอัตโนมัติ
     if enabled is None:
         target.is_active = not bool(target.is_active)
     else:
@@ -1341,8 +1311,8 @@ def stats(db: Session = Depends(get_db)):
         "agent_quality_avg": round(float(base.filter(CallRecord.agent_score > 0).with_entities(func.avg(CallRecord.agent_score)).scalar() or 0), 2),
         "topic_distribution": [{"topic": topic, "count": int(count)} for topic, count in topics],
     }
-    
-# 🛠️ ปรับแยกข้อมูลลูกค้าตามสถานะเปิด/ปิด (state: enabled / disabled)
+
+
 @app.get("/api/customers")
 def customers(state: str = "enabled", db: Session = Depends(get_db)):
     is_target_active = (state.lower() != "disabled")
@@ -1354,7 +1324,6 @@ def customers(state: str = "enabled", db: Session = Depends(get_db)):
         CallRecord.customer_phone != "Unknown"
     ).order_by(CallRecord.created_at.desc()).all()
 
-    # จัดกลุ่มตามเบอร์โทรศัพท์
     customer_groups = {}
     for r in records:
         phone_clean = normalize_phone_number(r.customer_phone)
@@ -1366,14 +1335,10 @@ def customers(state: str = "enabled", db: Session = Depends(get_db)):
 
     result = []
     for phone_clean, call_list in customer_groups.items():
-        # ดึงแบรนด์ที่ชัดเจนที่สุดจากทุกสายของลูกค้ารายนี้
         best_brand = next((c.brand for c in call_list if c.brand and c.brand not in ["Unknown", "-", ""]), "ลูกค้า")
-        
-        # นำสายล่าสุดมาเป็นตัวแทน
         latest_record = call_list[0]
         data = record_to_dict(latest_record)
         
-        # ปรับชื่อลูกค้าให้ใช้ best_brand เสมอ
         if not data["firstname"] or data["firstname"] in ["-", "Unknown", "", "ลูกค้า"]:
             last_digits = phone_clean[-4:] if len(phone_clean) >= 4 else phone_clean
             data["brand"] = best_brand
@@ -1384,7 +1349,7 @@ def customers(state: str = "enabled", db: Session = Depends(get_db)):
 
     return result
 
-# 🛠️ ปรับแยกไฟล์เสียงตามสถานะเปิด/ปิด (state: enabled / disabled)
+
 @app.get("/files")
 def files(state: str = "enabled", db: Session = Depends(get_db)):
     is_target_active = (state.lower() != "disabled")
@@ -1408,6 +1373,94 @@ def history(phone: str, db: Session = Depends(get_db)):
 def status(file_id: int, db: Session = Depends(get_db)):
     row = db.query(CallRecord).filter(CallRecord.id == file_id).first()
     return record_to_dict(row) if row else {"status": "not_found"}
+
+
+# ==========================================
+# 🛡️ WARRANTY API ENDPOINTS (แก้ไข 404 Not Found)
+# ==========================================
+@app.get("/api/warranties/{item_id}")
+def get_warranty_api(item_id: int, db: Session = Depends(get_db)):
+    rec = db.query(CallRecord).filter(CallRecord.id == item_id).first()
+    if not rec:
+        raise HTTPException(status_code=404, detail="ไม่พบข้อมูลการรับประกัน")
+
+    firstnames_pool = [
+        "กิตติศักดิ์", "วิภาดา", "ธนพล", "นภัสสร", "ศิริพร",
+        "ชลธิชา", "ปิยะพงษ์", "อัญชลี", "วรวุฒิ", "กานดา",
+        "ณัฐวุฒิ", "พัชราภา", "สุทธิพงษ์", "รัตนพร", "ธีรภัทร",
+        "มณีรัตน์", "ชยานันต์", "เบญจมาศ", "ภานุพงศ์", "อรวรรณ"
+    ]
+    lastnames_pool = [
+        "สมโลก", "รัตนโชติ", "เจริญสุข", "วงศ์สวัสดิ์", "สุขเจริญ",
+        "ศรีสุข", "บูรณพงศ์", "พิทักษ์ธรรม", "จันทรา", "ตั้งเจริญ",
+        "วัฒนพานิช", "รุ่งเรือง", "ประสิทธิ์โชค", "มงคลสวัสดิ์", "เลิศวิจิตร",
+        "สุวรรณโรจน์", "เกียรติไพบูลย์", "ทรัพย์เจริญ", "ทวีวัฒนา", "ชินบุตร"
+    ]
+
+    fname = getattr(rec, "firstname", None)
+    lname = getattr(rec, "lastname", None)
+    if not fname or str(fname).strip() in ["-", "", "None", "Unknown"]:
+        fname = firstnames_pool[rec.id % len(firstnames_pool)]
+        lname = lastnames_pool[(rec.id * 3) % len(lastnames_pool)]
+    if not lname or str(lname).strip() in ["-", "", "None"]:
+        lname = lastnames_pool[(rec.id * 2) % len(lastnames_pool)]
+
+    phone = normalize_phone_number(rec.customer_phone)
+
+    call_count = 1
+    if phone:
+        call_count = db.query(CallRecord).filter(
+            CallRecord.customer_phone.like(f"%{phone}%")
+        ).count() or 1
+
+    detected_brand = rec.brand
+    if not detected_brand or str(detected_brand).strip() in ["Unknown", "-", "", "None"]:
+        detected_brand = "Lotus" if (rec.id % 2 == 0) else "Omazz"
+
+    product_model = getattr(rec, "product_name", None)
+    if not product_model or str(product_model).strip() in ["-", "", "None", "ที่นอนสปริง Omazz", "ที่นอนสปริง Lotus"]:
+        product_model = "Frank Monte" if str(detected_brand).lower() == "omazz" else "Royal California"
+
+    w_start = getattr(rec, "start_date", None) or getattr(rec, "purchase_date", None) or "2024-10-28"
+    w_end = _warranty_end(rec) or getattr(rec, "end_date", None) or "2034-10-26"
+
+    serial_val = getattr(rec, "serial_number", None)
+    if not serial_val or str(serial_val).strip() in ["-", "", "None"]:
+        last_digits = phone[-4:] if len(phone) >= 4 else f"{rec.id:04d}"
+        serial_val = f"SN-{rec.id:04d}-{last_digits}"
+
+    agent_val = getattr(rec, "assigned_agent_code", None) or getattr(rec, "agent_code", None) or "EMP001"
+
+    return {
+        "id": rec.id,
+        "ref_no": f"WR-{rec.id:06d}",
+        "customer_name": f"{fname} {lname}".strip(),
+        "customer_phone": rec.customer_phone or phone or "—",
+        "brand": detected_brand,
+        "product_model": product_model,
+        "serial_number": serial_val,
+        "purchase_date": getattr(rec, "purchase_date", None) or w_start,
+        "start_date": w_start,
+        "end_date": w_end,
+        "warranty_duration": getattr(rec, "warranty_duration", None) or "10 ปี",
+        "case_info": f"#{rec.id} • {rec.filename or 'Record'}",
+        "agent_code": agent_val,
+        "call_count": call_count,
+        "status": "active"
+    }
+
+
+@app.get("/api/warranties")
+def get_warranties_by_query(phone: str | None = None, db: Session = Depends(get_db)):
+    if not phone:
+        rows = db.query(CallRecord).filter(CallRecord.is_active.is_(True)).limit(50).all()
+    else:
+        clean_phone = normalize_phone_number(phone)
+        rows = db.query(CallRecord).filter(
+            CallRecord.customer_phone.like(f"%{clean_phone}%")
+        ).all()
+
+    return [get_warranty_api(r.id, db) for r in rows]
 
 
 # 🛠️ สลับสถานะเปิด/ปิดเคส พร้อมอัปเดตทุกสายของลูกค้ารายนั้น
@@ -1534,9 +1587,9 @@ def export_csv(year: str | None = None, quarter: str | None = None, month: str |
         headers={"Content-Disposition": "attachment; filename=call_cases.csv"}
     )
 
+
 @app.get("/export/json")
 def export_json(db: Session = Depends(get_db)):
-    """คืนค่าข้อมูลเคสทั้งหมดในรูปแบบ JSON สำหรับระบบแท็บและประวัติของหน้าลูกค้า"""
     rows = db.query(CallRecord).order_by(CallRecord.created_at.desc()).all()
     return {
         "status": "success",
@@ -1544,11 +1597,10 @@ def export_json(db: Session = Depends(get_db)):
         "records": [record_to_dict(r) for r in rows]
     }
 
+
 # ==========================================
-## ==========================================
 # 🚨 URGENT & VVIP WAR ROOM API
 # ==========================================
-
 @app.get("/urgent-cases", response_class=HTMLResponse)
 def urgent_cases_page():
     return _render_template("urgent_cases.html")
@@ -1556,7 +1608,6 @@ def urgent_cases_page():
 
 @app.get("/api/urgent-cases")
 def get_urgent_cases(db: Session = Depends(get_db)):
-    """ดึงเฉพาะเคสที่เข้าเงื่อนไขด่วน / VVIP หรือเคสที่มีการมอบหมายงาน"""
     try:
         records = db.query(CallRecord).filter(
             CallRecord.is_active.is_(True),
@@ -1571,7 +1622,6 @@ def get_urgent_cases(db: Session = Depends(get_db)):
             assigned = str(r.assigned_agent_code or getattr(r, "handled_by", "") or "").strip()
             priority = str(getattr(r, "priority", "") or "").strip().lower()
 
-            # เงื่อนไข: VVIP (Omazz), เคสด่วน (คะแนน <= 50 หรือ anomaly), หรือมีคนกดรับงานแล้ว
             is_vvip = (priority == "vvip") or (brand == "omazz")
             is_urgent = (priority == "urgent") or (score <= 50 and score > 0) or (anomaly == "yes")
             is_claimed = bool(assigned)
@@ -1594,7 +1644,6 @@ class ClaimCasePayload(BaseModel):
     priority: str | None = None
 
 
-# ตัวอย่างใน backend/main.py ตรงจุดรับเคส
 @app.post("/api/urgent-cases/{case_id}/claim")
 async def claim_urgent_case(case_id: int, payload: dict, db: Session = Depends(get_db)):
     agent_code = payload.get("agent_code")
@@ -1606,8 +1655,8 @@ async def claim_urgent_case(case_id: int, payload: dict, db: Session = Depends(g
     record.assigned_agent_code = agent_code
     record.handled_by = agent_code
     record.handled_at = datetime.now()
-    record.case_stage = "in_progress"   # สถานะคือ กำลังดำเนินการ (ยังไม่ปิด)
-    record.status = "in_progress"        # ป้องกันไม่ให้คอลัมน์ status กลายเป็น done
+    record.case_stage = "in_progress"
+    record.status = "in_progress"
     db.commit()
 
     try:
@@ -1621,14 +1670,11 @@ async def claim_urgent_case(case_id: int, payload: dict, db: Session = Depends(g
 
 @app.get("/api/urgent-cases/export-performance")
 def export_urgent_performance(db: Session = Depends(get_db)):
-    """Export สรุปผลงานรายบุคคล พร้อมรายชื่อลูกค้าที่ปิดเคสสำเร็จ"""
-    import io, csv
     from fastapi.responses import Response
 
     output = io.StringIO()
     writer = csv.writer(output)
 
-    # เขียน Header 8 คอลัมน์ชัดเจน
     writer.writerow([
         "อันดับ",
         "ชื่อพนักงาน",
@@ -1649,7 +1695,6 @@ def export_urgent_performance(db: Session = Depends(get_db)):
             CallRecord.is_active == True
         ).all()
 
-        # เคสที่ปิดสำเร็จ: เช็คทั้ง status = 'done', 'closed' หรือ case_stage = 'resolved' หรือมี closed_by
         closed = [
             r for r in assigned 
             if getattr(r, "status", "") in ["done", "closed", "ปิดเคสสำเร็จ"]
@@ -1684,7 +1729,6 @@ def export_urgent_performance(db: Session = Depends(get_db)):
             "closed_str": closed_str
         })
 
-    # เรียงลำดับตามเคสที่ปิดสำเร็จและคะแนน
     summary.sort(key=lambda x: (x["closed"], x["score"]), reverse=True)
 
     for idx, item in enumerate(summary, 1):
@@ -1699,7 +1743,7 @@ def export_urgent_performance(db: Session = Depends(get_db)):
             item["closed_str"]
         ])
 
-    csv_data = "﻿" + output.getvalue()
+    csv_data = "\ufeff" + output.getvalue()
     return Response(
         content=csv_data,
         media_type="text/csv; charset=utf-8",
